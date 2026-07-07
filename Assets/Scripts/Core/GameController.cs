@@ -58,6 +58,7 @@ namespace Core
             _platformBridge = new PlatformBridge(platformServices, gameEvents, actionCountersModel, gameManager);
 
             _gameEvents.onBoardCleared.AddListener(HandleBoardCleared);
+            _gameEvents.onTutorialCompleted.AddListener(HandleTutorialCompleted);
         }
 
         /// <summary>
@@ -66,6 +67,7 @@ namespace Core
         public void Dispose()
         {
             _gameEvents.onBoardCleared.RemoveListener(HandleBoardCleared);
+            _gameEvents.onTutorialCompleted.RemoveListener(HandleTutorialCompleted);
 
             _matchHandler?.Dispose();
             _playerActionHandler?.Dispose();
@@ -77,8 +79,23 @@ namespace Core
         /// Начинает новую игру, очищая поле, историю и опционально сбрасывая статистику.
         /// </summary>
         /// <param name="resetStatisticsAndCounters">Если true, сбрасывает статистику и счетчики действий.</param>
+        private void HandleTutorialCompleted()
+        {
+            StartNewGame(true);
+        }
+
+        /// <summary>
+        /// Начинает новую игру, очищая поле, историю и опционально сбрасывая статистику.
+        /// </summary>
+        /// <param name="resetStatisticsAndCounters">Если true, сбрасывает статистику и счетчики действий.</param>
         public void StartNewGame(bool resetStatisticsAndCounters)
         {
+            if (!YG.YG2.saves.isTutorialCompleted)
+            {
+                _gameEvents.onTutorialStarted.Raise();
+                return;
+            }
+
             _gridView.ResetSelectionAndHints();
             _gridModel.ClearField();
             _actionHistory.Clear();
@@ -93,7 +110,14 @@ namespace Core
 
             for (var i = 0; i < GameConstants.InitialLinesOnStart; i++)
             {
-                _gridModel.CreateLine(i);
+                if (resetStatisticsAndCounters)
+                {
+                    _gridModel.CreateFriendlyLine(i);
+                }
+                else
+                {
+                    _gridModel.CreateLine(i);
+                }
             }
 
             _gameEvents.onNewGameStarted.Raise();

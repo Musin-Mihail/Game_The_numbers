@@ -25,6 +25,7 @@ namespace Localization
 
         public LocalizationManager(GameEvents gameEvents)
         {
+            CurrentLanguage = "en";
             gameEvents.onSetLanguage.AddListener(SetLanguage);
             LoadTranslationsFile();
         }
@@ -90,16 +91,17 @@ namespace Localization
         /// </summary>
         public string Get(string key)
         {
+            if (string.IsNullOrEmpty(key)) return "";
+            var lang = CurrentLanguage ?? "en";
             if (_allTranslations.TryGetValue(key, out var translationsForCurrentKey))
             {
-                if (translationsForCurrentKey.TryGetValue(CurrentLanguage, out var translation))
+                if (translationsForCurrentKey.TryGetValue(lang, out var translation))
                 {
                     return translation;
                 }
 
                 if (translationsForCurrentKey.TryGetValue("en", out var fallbackTranslation))
                 {
-                    Debug.LogWarning($"[LocalizationManager] Перевод для ключа '{key}' на языке '{CurrentLanguage}' не найден. Используется 'en'.");
                     return fallbackTranslation;
                 }
             }

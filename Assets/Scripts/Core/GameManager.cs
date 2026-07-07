@@ -14,6 +14,7 @@ namespace Core
     {
         private GameEvents _gameEvents;
         private ISaveLoadService _saveLoadService;
+        private Core.Handlers.IdleHintHandler _idleHintHandler;
 
         private const float SaveCooldown = 5.0f;
         private float _timeSinceLastSave = 5.0f;
@@ -27,6 +28,7 @@ namespace Core
         {
             _saveLoadService = saveLoadService;
             _gameEvents = ServiceProvider.GetService<GameEvents>();
+            _idleHintHandler = ServiceProvider.GetService<Core.Handlers.IdleHintHandler>();
             SubscribeToEvents();
         }
 
@@ -35,6 +37,8 @@ namespace Core
         /// </summary>
         private void Update()
         {
+            _idleHintHandler?.Tick(Time.deltaTime);
+
             if (_timeSinceLastSave < SaveCooldown)
             {
                 _timeSinceLastSave += Time.deltaTime;

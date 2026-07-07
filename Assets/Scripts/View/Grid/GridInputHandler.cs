@@ -13,6 +13,7 @@ namespace View.Grid
         private readonly GridVisuals _gridVisuals;
 
         private Guid? _firstSelectedCellId;
+        private System.Collections.Generic.List<Guid> _allowedCells;
 
         public GridInputHandler(GameEvents gameEvents, GridVisuals gridVisuals)
         {
@@ -22,12 +23,16 @@ namespace View.Grid
 
         public bool IsCellSelected(Guid id) => _firstSelectedCellId.HasValue && _firstSelectedCellId.Value == id;
 
+        public void SetAllowedCells(System.Collections.Generic.List<Guid> allowed) => _allowedCells = allowed;
+
         /// <summary>
         /// Обрабатывает клик по ячейке.
         /// </summary>
         /// <param name="clickedCellId">ID ячейки, по которой кликнули.</param>
         public void HandleCellClicked(Guid clickedCellId)
         {
+            if (_allowedCells != null && !_allowedCells.Contains(clickedCellId)) return;
+
             if (!_firstSelectedCellId.HasValue)
             {
                 _firstSelectedCellId = clickedCellId;

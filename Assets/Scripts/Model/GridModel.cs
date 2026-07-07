@@ -176,6 +176,33 @@ namespace Model
         }
 
         /// <summary>
+        /// Создает новую линию с ячейками, где больше шансов на совпадения для новичков.
+        /// </summary>
+        /// <param name="lineIndex">Индекс новой линии.</param>
+        public void CreateFriendlyLine(int lineIndex)
+        {
+            var newLine = new List<CellData>();
+            int prevNumber = -1;
+            for (var i = 0; i < GameConstants.QuantityByWidth; i++)
+            {
+                int number = Random.Range(1, 10);
+                if (prevNumber != -1 && Random.Range(0, 100) < 40)
+                {
+                    number = Random.Range(0, 2) == 0 ? prevNumber : 10 - prevNumber;
+                }
+                prevNumber = number;
+
+                var cellData = new CellData(number, lineIndex, i);
+                newLine.Add(cellData);
+                _cellDataMap[cellData.Id] = cellData;
+                _gameEvents?.onCellAdded.Raise((cellData, true));
+            }
+
+            _cells.Add(newLine);
+            _isCacheDirty = true;
+        }
+
+        /// <summary>
         /// Проверяет, является ли линия пустой (все ячейки неактивны).
         /// </summary>
         public bool IsLineEmpty(int lineIndex)

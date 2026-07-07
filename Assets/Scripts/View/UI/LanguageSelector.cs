@@ -118,7 +118,7 @@ namespace View.UI
         {
             if (_localizationManager == null || currentLanguageImage == null) return;
 
-            var currentLang = _localizationManager.CurrentLanguage;
+            var currentLang = _localizationManager.CurrentLanguage ?? "en";
             if (_spriteMap.TryGetValue(currentLang, out var sprite))
             {
                 currentLanguageImage.sprite = sprite;

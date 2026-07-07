@@ -9,6 +9,11 @@ namespace YG
     public partial class SavesYG
     {
         /// <summary>
+        /// Определяет, пройден ли интерактивный туториал.
+        /// </summary>
+        public bool isTutorialCompleted = false;
+
+        /// <summary>
         /// Определяет, видна ли верхняя строка с дублирующимися номерами.
         /// </summary>
         public bool isTopLineVisible = true;
@@ -45,7 +50,7 @@ namespace YG
         /// Это позволяет показывать анимацию для каждого нового обновления.
         /// </summary>
         public List<int> seenUpdateVersions = new();
-        
+
         /// <summary>
         /// Хранит идентификаторы выполненных миграций данных, чтобы избежать их повторного запуска.
         /// </summary>

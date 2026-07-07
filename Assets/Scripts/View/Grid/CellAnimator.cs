@@ -9,6 +9,34 @@ namespace View.Grid
     public class CellAnimator : MonoBehaviour
     {
         private Coroutine _moveCoroutine;
+        private Coroutine _wiggleCoroutine;
+
+        /// <summary>
+        /// Запускает анимацию покачивания (Idle Hint).
+        /// </summary>
+        public void Wiggle(RectTransform rectTransform)
+        {
+            if (!rectTransform) return;
+            if (_wiggleCoroutine != null) StopCoroutine(_wiggleCoroutine);
+            _wiggleCoroutine = StartCoroutine(WiggleCoroutine(rectTransform, 1f));
+        }
+
+        private IEnumerator WiggleCoroutine(RectTransform rectTransform, float duration)
+        {
+            var elapsedTime = 0f;
+            var originalRotation = rectTransform.localRotation;
+
+            while (elapsedTime < duration)
+            {
+                var angle = Mathf.Sin(elapsedTime * Mathf.PI * 4f) * 5f;
+                rectTransform.localRotation = originalRotation * Quaternion.Euler(0, 0, angle);
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+
+            rectTransform.localRotation = originalRotation;
+            _wiggleCoroutine = null;
+        }
 
         /// <summary>
         /// Запускает анимацию перемещения RectTransform в целевую позицию.

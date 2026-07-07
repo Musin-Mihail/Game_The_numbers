@@ -52,6 +52,8 @@ namespace Core.Handlers
         /// </summary>
         private void FindAndShowHint()
         {
+            if (!YG.YG2.saves.isTutorialCompleted) return;
+
             if (_gridView.HasActiveHints)
             {
                 return;

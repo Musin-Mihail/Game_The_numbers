@@ -89,12 +89,14 @@ namespace View.Grid
             _gameEvents.onInvalidMatch.AddListener(HandleInvalidMatch);
             _gameEvents.onToggleTopLine.AddListener(HandleToggleTopLine);
             _gameEvents.onHintFound.AddListener(HandleHintFound);
+            _gameEvents.onIdleHintFound.AddListener(HandleIdleHintFound);
             _gameEvents.onPairScoreAdded.AddListener(HandlePairScoreAdded);
             _gameEvents.onLineScoreAdded.AddListener(HandleLineScoreAdded);
             _gameEvents.onPairScoreUndone.AddListener(HandlePairScoreUndone);
             _gameEvents.onLineScoreUndone.AddListener(HandleLineScoreUndone);
             _gameEvents.onBoardCleared.AddListener(HandleBoardCleared);
             _gameEvents.onLinesRemoved.AddListener(HandleGridChanged);
+            _gameEvents.onSetAllowedInputCells.AddListener(HandleSetAllowedCells);
 
             scrollRect.onValueChanged.AddListener(OnScrollPositionChanged);
         }
@@ -112,14 +114,21 @@ namespace View.Grid
             _gameEvents.onInvalidMatch.RemoveListener(HandleInvalidMatch);
             _gameEvents.onToggleTopLine.RemoveListener(HandleToggleTopLine);
             _gameEvents.onHintFound.RemoveListener(HandleHintFound);
+            _gameEvents.onIdleHintFound.RemoveListener(HandleIdleHintFound);
             _gameEvents.onPairScoreAdded.RemoveListener(HandlePairScoreAdded);
             _gameEvents.onLineScoreAdded.RemoveListener(HandleLineScoreAdded);
             _gameEvents.onPairScoreUndone.RemoveListener(HandlePairScoreUndone);
             _gameEvents.onLineScoreUndone.RemoveListener(HandleLineScoreUndone);
             _gameEvents.onBoardCleared.RemoveListener(HandleBoardCleared);
             _gameEvents.onLinesRemoved.RemoveListener(HandleGridChanged);
+            _gameEvents.onSetAllowedInputCells.RemoveListener(HandleSetAllowedCells);
 
             scrollRect.onValueChanged.RemoveListener(OnScrollPositionChanged);
+        }
+
+        private void HandleSetAllowedCells(List<Guid> allowed)
+        {
+            _inputHandler.SetAllowedCells(allowed);
         }
 
         private void OnScrollPositionChanged(Vector2 pos)
@@ -231,6 +240,18 @@ namespace View.Grid
         private void HandleHintFound((Guid firstId, Guid secondId) data)
         {
             _visuals.ShowHint(data);
+        }
+
+        private void HandleIdleHintFound((Guid id1, Guid id2) data)
+        {
+            if (_cellViewInstances.TryGetValue(data.id1, out var cell1))
+            {
+                cell1.Animator.Wiggle(cell1.TargetRectTransform);
+            }
+            if (_cellViewInstances.TryGetValue(data.id2, out var cell2))
+            {
+                cell2.Animator.Wiggle(cell2.TargetRectTransform);
+            }
         }
 
         private void HandleMatchFound((Guid firstCellId, Guid secondCellId) data)

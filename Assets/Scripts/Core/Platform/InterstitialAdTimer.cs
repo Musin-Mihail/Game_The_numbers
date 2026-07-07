@@ -14,8 +14,11 @@ namespace Core.Platform
         [Tooltip("Ссылка на ScriptableObject с игровыми событиями")]
         [SerializeField] private GameEvents gameEvents;
 
+        private float _sessionStartTime;
+
         private void OnEnable()
         {
+            _sessionStartTime = Time.realtimeSinceStartup;
             if (gameEvents)
             {
                 gameEvents.onAddExistingNumbers.AddListener(OnAddExistingNumbersTriggered);
@@ -36,6 +39,7 @@ namespace Core.Platform
         /// </summary>
         private void OnAddExistingNumbersTriggered()
         {
+            if (Time.realtimeSinceStartup - _sessionStartTime < 180f) return;
             YG2.InterstitialAdvShow();
         }
     }

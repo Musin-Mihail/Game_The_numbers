@@ -49,9 +49,17 @@ namespace Core
         private void Awake()
         {
             if (loadingScreen) loadingScreen.SetActive(true);
-            if (gameEvents && gameEvents.onYandexSDKInitialized != null)
+            if (gameEvents)
             {
-                gameEvents.onYandexSDKInitialized.Reset();
+                if (gameEvents.onTutorialStarted == null) gameEvents.onTutorialStarted = ScriptableObject.CreateInstance<StatefulVoidEvent>();
+                if (gameEvents.onTutorialCompleted == null) gameEvents.onTutorialCompleted = ScriptableObject.CreateInstance<VoidEvent>();
+                if (gameEvents.onSetAllowedInputCells == null) gameEvents.onSetAllowedInputCells = ScriptableObject.CreateInstance<GuidListEvent>();
+                if (gameEvents.onIdleHintFound == null) gameEvents.onIdleHintFound = ScriptableObject.CreateInstance<CellPairEvent>();
+
+                if (gameEvents.onYandexSDKInitialized != null)
+                {
+                    gameEvents.onYandexSDKInitialized.Reset();
+                }
             }
 
             if (!gameEvents)
@@ -83,6 +91,10 @@ namespace Core
             ServiceProvider.Register<IPlatformServices>(yandexPlatformService);
             _disposableServices.Add(yandexPlatformService);
 
+            var tutorialHandler = new Core.Handlers.TutorialHandler(gameEvents, gridModel, yandexSaveLoadService);
+            ServiceProvider.Register(tutorialHandler);
+            _disposableServices.Add(tutorialHandler);
+
             var gridDataProvider = new GridDataProvider(gridModel);
             var matchValidator = new MatchValidator(gridDataProvider);
             ServiceProvider.Register<IGridDataProvider>(gridDataProvider);
@@ -91,6 +103,10 @@ namespace Core
             ServiceProvider.Register(gridView);
             ServiceProvider.Register(headerNumberDisplay);
             ServiceProvider.Register(confirmationDialog);
+
+            var idleHintHandler = new Core.Handlers.IdleHintHandler(gameEvents, gridModel, matchValidator);
+            ServiceProvider.Register(idleHintHandler);
+            _disposableServices.Add(idleHintHandler);
 
             _gameController = new GameController(
                 gridModel,

@@ -36,7 +36,13 @@ namespace Core.Events
 
         [Header("Подсказки")]
         public CellPairEvent onHintFound;
+        public CellPairEvent onIdleHintFound;
         public VoidEvent onNoHintFound;
+
+        [Header("Туториал")]
+        public StatefulVoidEvent onTutorialStarted;
+        public VoidEvent onTutorialCompleted;
+        public GuidListEvent onSetAllowedInputCells;
 
         [Header("Счетчики действий")]
         public VoidEvent onRequestRefillCounters;

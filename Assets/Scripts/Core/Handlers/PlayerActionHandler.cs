@@ -65,6 +65,8 @@ namespace Core.Handlers
         /// </summary>
         private void AddExistingNumbersAsNewLines()
         {
+            if (!YG.YG2.saves.isTutorialCompleted) return;
+
             if (_gridModel.Cells.Count * 2 > LineLimit)
             {
                 var message = _localizationManager.Get("lineLimitReached");
@@ -92,6 +94,8 @@ namespace Core.Handlers
         /// </summary>
         private void UndoLastAction()
         {
+            if (!YG.YG2.saves.isTutorialCompleted) return;
+
             if (!_actionCountersModel.IsUndoAvailable())
             {
                 _gameEvents.onRequestRefillCounters.Raise();

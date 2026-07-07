@@ -27,6 +27,11 @@ namespace Core.Shop
             _gameEvents = gameEvents;
             _actionCountersModel = actionCountersModel;
             _localizationManager = ServiceProvider.GetService<LocalizationManager>();
+
+            if (YG2.isSDKEnabled)
+            {
+                InitializeShopProduct();
+            }
         }
 
         private void OnEnable()
@@ -58,10 +63,13 @@ namespace Core.Shop
         {
             if (_actionCountersModel == null)
             {
-                Debug.LogError("ShopManager не смог получить ActionCountersModel. Убедитесь, что модель регистрируется до вызова onGetSDKData.");
-                if (purchaseButton) purchaseButton.interactable = false;
-                if (priceText) priceText.text = _localizationManager.Get("shopError");
                 return;
+            }
+
+            if (_localizationManager == null)
+            {
+                _localizationManager = ServiceProvider.GetService<LocalizationManager>();
+                if (_localizationManager == null) return;
             }
 
             YG2.ConsumePurchaseByID(GameConstants.DisableCountersProductId);
