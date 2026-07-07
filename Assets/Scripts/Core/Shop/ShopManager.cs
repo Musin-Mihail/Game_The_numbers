@@ -1,4 +1,5 @@
 ﻿using Core.Events;
+using Core;
 using Localization;
 using Model;
 using TMPro;
@@ -27,11 +28,7 @@ namespace Core.Shop
 
         private void BindUI()
         {
-            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            foreach (var t in allTransforms)
-            {
-                if (t.name == "DisabledCounters") _purchaseButton = t.GetComponent<Button>();
-            }
+            _purchaseButton = transform.FindComponentInChildren<Button>("DisabledCounters");
             if (_purchaseButton != null)
             {
                 var cost = _purchaseButton.transform.Find("Cost");

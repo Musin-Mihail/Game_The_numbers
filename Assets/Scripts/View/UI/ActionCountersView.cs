@@ -1,4 +1,5 @@
-﻿using Core.Events;
+﻿using Core;
+using Core.Events;
 using TMPro;
 using UnityEngine;
 
@@ -21,8 +22,19 @@ namespace View.UI
 
         private void BindUI()
         {
-            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            UnityEngine.UI.Button btnAdd = null, btnMenu = null;
+            _undoCount = transform.FindGameObjectInChildren("Obj_UndoCount");
+            _hintCount = transform.FindGameObjectInChildren("Obj_HintCount");
+            _undoCountText = transform.FindComponentInChildren<TextMeshProUGUI>("Txt_UndoCountText");
+            _hintCountText = transform.FindComponentInChildren<TextMeshProUGUI>("Txt_HintCountText");
+            var btnUndo = _undoCount?.GetComponent<UnityEngine.UI.Button>();
+            btnUndo?.onClick.AddListener(() => GlobalEvents.OnUndoLastAction?.Invoke());
+            var btnHint = _hintCount?.GetComponent<UnityEngine.UI.Button>();
+            btnHint?.onClick.AddListener(() => GlobalEvents.OnRequestHint?.Invoke());
+            var btnAdd = transform.FindComponentInChildren<UnityEngine.UI.Button>("NewLines");
+            btnAdd?.onClick.AddListener(() => GlobalEvents.OnAddExistingNumbers?.Invoke());
+            var btnMenu = transform.FindComponentInChildren<UnityEngine.UI.Button>("Menu");
+            btnMenu?.onClick.AddListener(() => GlobalEvents.OnShowMenu?.Invoke());
+            /*
 
             foreach (var t in allTransforms)
             {
@@ -40,8 +52,7 @@ namespace View.UI
             var btnHint = _hintCount?.GetComponent<UnityEngine.UI.Button>();
             btnHint?.onClick.AddListener(() => GlobalEvents.OnRequestHint?.Invoke());
 
-            btnAdd?.onClick.AddListener(() => GlobalEvents.OnAddExistingNumbers?.Invoke());
-            btnMenu?.onClick.AddListener(() => GlobalEvents.OnShowMenu?.Invoke());
+            */
         }
 
         private void OnEnable()

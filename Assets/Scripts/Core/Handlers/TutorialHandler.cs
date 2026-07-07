@@ -15,15 +15,17 @@ namespace Core.Handlers
     {
         private readonly GridModel _gridModel;
         private readonly ISaveLoadService _saveLoadService;
+        private readonly GameManager _gameManager;
 
         private int _currentStep = -1;
         private CellData _targetCell1;
         private CellData _targetCell2;
 
-        public TutorialHandler(GridModel gridModel, ISaveLoadService saveLoadService)
+        public TutorialHandler(GridModel gridModel, ISaveLoadService saveLoadService, GameManager gameManager)
         {
             _gridModel = gridModel;
             _saveLoadService = saveLoadService;
+            _gameManager = gameManager;
 
             GlobalEvents.OnTutorialStarted += StartTutorial;
             GlobalEvents.OnMatchFound += OnMatchFound;
@@ -86,7 +88,7 @@ namespace Core.Handlers
 
             if (_currentStep < 2)
             {
-                SetStep(_currentStep + 1);
+                _gameManager.StartCoroutine(NextStepRoutine());
             }
             else
             {
@@ -96,6 +98,12 @@ namespace Core.Handlers
                 GlobalEvents.OnSetAllowedInputCells?.Invoke(null);
                 GlobalEvents.OnTutorialCompleted?.Invoke();
             }
+        }
+
+        private System.Collections.IEnumerator NextStepRoutine()
+        {
+            yield return new UnityEngine.WaitForSeconds(0.6f);
+            SetStep(_currentStep + 1);
         }
 
         public void Dispose()

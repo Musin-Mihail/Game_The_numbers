@@ -1,4 +1,5 @@
-﻿using Core.Events;
+using Core;
+using Core.Events;
 using UnityEngine;
 using UnityEngine.UI;
 using YG;
@@ -20,22 +21,17 @@ namespace View.UI
 
         private void BindUI()
         {
-            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            foreach (var t in allTransforms)
-            {
-                if (t.name == "Options" && t.parent != null && t.parent.name == "Canvas") _optionsWindow = t.gameObject;
-                else if (t.name == "Toggle_TopLine") _topLineToggle = t.GetComponent<Toggle>();
-            }
-
+            _optionsWindow = transform.Find("Options")?.gameObject;
             if (_optionsWindow != null)
             {
-                var btnHideOptions = _optionsWindow.transform.Find("Obj_OptionsWindow/Closed")?.GetComponent<Button>();
+                _topLineToggle = _optionsWindow.transform.FindComponentInChildren<Toggle>("Toggle_TopLine");
+                var btnHideOptions = _optionsWindow.transform.FindComponentInChildren<Button>("Closed");
                 btnHideOptions?.onClick.AddListener(() => GlobalEvents.OnHideOptions?.Invoke());
-
-                var btnNewGame = _optionsWindow.transform.Find("Obj_OptionsWindow/NewGame")?.GetComponent<Button>();
+                
+                var btnNewGame = _optionsWindow.transform.FindComponentInChildren<Button>("NewGame");
                 btnNewGame?.onClick.AddListener(() => GlobalEvents.OnRequestNewGame?.Invoke());
-
-                var btnHardReset = _optionsWindow.transform.Find("Obj_OptionsWindow/HardReset")?.GetComponent<Button>();
+                
+                var btnHardReset = _optionsWindow.transform.FindComponentInChildren<Button>("HardReset");
                 btnHardReset?.onClick.AddListener(() => GlobalEvents.OnRequestHardReset?.Invoke());
             }
         }

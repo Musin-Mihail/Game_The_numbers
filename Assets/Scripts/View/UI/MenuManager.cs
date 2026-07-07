@@ -1,4 +1,5 @@
-﻿using Core.Events;
+using Core;
+using Core.Events;
 using UnityEngine;
 
 namespace View.UI
@@ -17,25 +18,19 @@ namespace View.UI
 
         private void BindUI()
         {
-            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            foreach (var t in allTransforms)
-            {
-                // Находим КОРНЕВОЙ объект меню, чтобы включать его вместе с фоном
-                if (t.name == "Menu" && t.parent != null && t.parent.name == "Canvas") _windowMenu = t.gameObject;
-            }
-
+            _windowMenu = transform.Find("Menu")?.gameObject;
             if (_windowMenu != null)
             {
-                var btnHideMenu = _windowMenu.transform.Find("Obj_WindowMenu/Continue")?.GetComponent<UnityEngine.UI.Button>();
+                var btnHideMenu = _windowMenu.transform.FindComponentInChildren<UnityEngine.UI.Button>("Continue");
                 btnHideMenu?.onClick.AddListener(() => GlobalEvents.OnHideMenu?.Invoke());
 
-                var btnShowOptions = _windowMenu.transform.Find("Obj_WindowMenu/Options")?.GetComponent<UnityEngine.UI.Button>();
+                var btnShowOptions = _windowMenu.transform.FindComponentInChildren<UnityEngine.UI.Button>("Options");
                 btnShowOptions?.onClick.AddListener(() => {
                     GlobalEvents.OnShowOptions?.Invoke();
                     GlobalEvents.OnRequestMarkUpdateSeen?.Invoke();
                 });
 
-                var btnShowRules = _windowMenu.transform.Find("Obj_WindowMenu/Rules")?.GetComponent<UnityEngine.UI.Button>();
+                var btnShowRules = _windowMenu.transform.FindComponentInChildren<UnityEngine.UI.Button>("Rules");
                 btnShowRules?.onClick.AddListener(() => GlobalEvents.OnShowRules?.Invoke());
             }
         }

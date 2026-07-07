@@ -29,7 +29,7 @@ namespace Core
         private LeaderboardUpdater leaderboardUpdater;
         private ShopManager shopManager;
         private GameManager gameManager;
-        private GameObject loadingScreen;
+        private LoadingScreenManager _loadingScreenManager;
 
         private const int MaxLoadAttempts = 3;
         private const float LoadAttemptDelay = 1.0f;
@@ -49,17 +49,7 @@ namespace Core
             leaderboardUpdater = UnityEngine.Object.FindFirstObjectByType<LeaderboardUpdater>(FindObjectsInactive.Include);
             shopManager = UnityEngine.Object.FindFirstObjectByType<ShopManager>(FindObjectsInactive.Include);
             gameManager = UnityEngine.Object.FindFirstObjectByType<GameManager>(FindObjectsInactive.Include);
-
-            // Загрузочный экран ищем по всем объектам сцены, так как у него нет своего уникального скрипта
-            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            foreach (var t in allTransforms)
-            {
-                if (t.name == "UI_LoadingScreen")
-                {
-                    loadingScreen = t.gameObject;
-                    break;
-                }
-            }
+            _loadingScreenManager = UnityEngine.Object.FindFirstObjectByType<LoadingScreenManager>(FindObjectsInactive.Include);
 
             if (gridView == null) Debug.LogWarning("[GameBootstrap] Компонент GridView не найден ни на одном объекте.");
             if (gameManager == null) Debug.LogWarning("[GameBootstrap] Компонент GameManager не найден ни на одном объекте.");
@@ -69,7 +59,7 @@ namespace Core
         {
             BindCoreSystems();
             
-            if (loadingScreen) loadingScreen.SetActive(true);
+            _loadingScreenManager?.Show();
 
             ServiceProvider.Clear();
 
@@ -93,7 +83,7 @@ namespace Core
             ServiceProvider.Register<IPlatformServices>(yandexPlatformService);
             _disposableServices.Add(yandexPlatformService);
 
-            var tutorialHandler = new Core.Handlers.TutorialHandler(gridModel, yandexSaveLoadService);
+            var tutorialHandler = new Core.Handlers.TutorialHandler(gridModel, yandexSaveLoadService, gameManager);
             ServiceProvider.Register(tutorialHandler);
             _disposableServices.Add(tutorialHandler);
 
@@ -274,7 +264,7 @@ namespace Core
         private void OnRetryLoad()
         {
             Debug.Log("Игрок выбрал повторную попытку загрузки.");
-            if (loadingScreen) loadingScreen.SetActive(true);
+            _loadingScreenManager?.Show();
             StartCoroutine(LoadGameWithRetries());
         }
 
@@ -307,7 +297,7 @@ namespace Core
                 GlobalEvents.OnNewUpdateAvailable?.Invoke();
             }
 
-            if (loadingScreen) loadingScreen.SetActive(false);
+            _loadingScreenManager?.Hide();
         }
 
         private void SetupListeners()

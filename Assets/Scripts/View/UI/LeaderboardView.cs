@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Core;
+using System.Collections.Generic;
 using UnityEngine;
 using YG;
 using YG.Utils.LB;
@@ -31,15 +32,8 @@ namespace View.UI
 
         private void BindUI()
         {
-            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            foreach (var t in allTransforms)
-            {
-                if (t.name == "Leaderboard" && t.parent != null && t.parent.name == "Content")
-                {
-                    _container = t;
-                    break;
-                }
-            }
+            var lb = transform.FindGameObjectInChildren("Leaderboard");
+            if (lb != null) _container = lb.transform;
         }
 
         /// <summary>

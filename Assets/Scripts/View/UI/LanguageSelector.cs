@@ -48,8 +48,25 @@ namespace View.UI
 
         private void BindUI()
         {
-            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            foreach (var t in allTransforms)
+            _openLanguagePanelButton = transform.FindComponentInChildren<Button>("Btn_OpenLanguagePanel");
+            _languagePanel = transform.FindGameObjectInChildren("Obj_LanguagePanel");
+            if (_openLanguagePanelButton != null) _currentLanguageImage = transform.FindComponentInChildren<Image>("Img_CurrentLanguage");
+            if (_languagePanel != null)
+            {
+                _closeButton = transform.FindComponentInChildren<Button>("Btn_Close");
+                _backgroundCloseButton = transform.FindComponentInChildren<Button>("Btn_BackgroundClose");
+                var languagesParent = transform.FindGameObjectInChildren("Languages")?.transform;
+                if (languagesParent != null)
+                {
+                    foreach (Transform child in languagesParent)
+                    {
+                        var btn = child.GetComponent<Button>();
+                        var langCode = child.name.ToLower();
+                        if (btn != null) btn.onClick.AddListener(() => GlobalEvents.OnSetLanguage?.Invoke(langCode));
+                    }
+                }
+            }
+            /*
             {
                 if (t.name == "Btn_OpenLanguagePanel") _openLanguagePanelButton = t.GetComponent<Button>();
                 else if (t.name == "Obj_LanguagePanel") _languagePanel = t.gameObject;
@@ -72,10 +89,7 @@ namespace View.UI
                     {
                         var btn = child.GetComponent<Button>();
                         var langCode = child.name.ToLower();
-                        if (btn != null) btn.onClick.AddListener(() => GlobalEvents.OnSetLanguage?.Invoke(langCode));
-                    }
-                }
-            }
+            */
         }
 
         private void Start()

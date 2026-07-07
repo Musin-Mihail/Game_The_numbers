@@ -1,6 +1,5 @@
-﻿using Core;
+using Core;
 using Core.Events;
-using Services;
 using UnityEngine;
 using YG;
 using YG.Utils.LB;
@@ -22,18 +21,12 @@ namespace View.UI
 
         private void BindUI()
         {
-            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            foreach (var t in allTransforms)
-            {
-                if (t.name == "Statistics" && t.parent != null && t.parent.name == "Canvas") _statisticsWindow = t.gameObject;
-            }
-
+            _statisticsWindow = transform.Find("Statistics")?.gameObject;
+            _leaderboardView = GetComponent<LeaderboardView>() ?? UnityEngine.Object.FindFirstObjectByType<LeaderboardView>(FindObjectsInactive.Include);
+            
             if (_statisticsWindow != null)
             {
-                _leaderboardView = UnityEngine.Object.FindFirstObjectByType<LeaderboardView>(FindObjectsInactive.Include);
-                
-                var content = _statisticsWindow.transform.Find("Content");
-                var btnHideStatistics = content?.Find("Closed")?.GetComponent<UnityEngine.UI.Button>();
+                var btnHideStatistics = _statisticsWindow.transform.FindComponentInChildren<UnityEngine.UI.Button>("Closed");
                 btnHideStatistics?.onClick.AddListener(() => GlobalEvents.OnHideStatistics?.Invoke());
             }
         }

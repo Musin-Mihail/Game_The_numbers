@@ -1,4 +1,5 @@
-﻿using Core.Events;
+using Core;
+using Core.Events;
 using UnityEngine;
 
 namespace View.UI
@@ -18,17 +19,12 @@ namespace View.UI
 
         private void BindUI()
         {
-            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            foreach (var t in allTransforms)
-            {
-                if (t.name == "Rules" && t.parent != null && t.parent.name == "Canvas") _rulesWindow = t.gameObject;
-            }
-
+            _rulesWindow = transform.Find("Rules")?.gameObject;
             if (_rulesWindow != null)
             {
-                _rulesGrid = UnityEngine.Object.FindFirstObjectByType<RulesGrid>(FindObjectsInactive.Include);
+                _rulesGrid = _rulesWindow.transform.FindComponentInChildren<RulesGrid>("RulesGrid") ?? UnityEngine.Object.FindFirstObjectByType<RulesGrid>(FindObjectsInactive.Include);
                 
-                var btnHideRules = _rulesWindow.transform.Find("Obj_RulesWindow/Closed")?.GetComponent<UnityEngine.UI.Button>();
+                var btnHideRules = _rulesWindow.transform.FindComponentInChildren<UnityEngine.UI.Button>("Closed");
                 btnHideRules?.onClick.AddListener(() => GlobalEvents.OnHideRules?.Invoke());
             }
         }
