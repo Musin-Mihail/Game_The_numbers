@@ -8,7 +8,7 @@ TextScriptImporter:
 AssetOrigin:
   serializedVersion: 1
   productId: 302343
-  packageName: Plugin Your Games 2.0
-  packageVersion: 2.0032
+  packageName: Plugin Your Games (Unified API for WebGL and mobile stores)
+  packageVersion: 2.007
   assetPath: Assets/PluginYourGames/Platforms/YandexGames/Version.txt
-  uploadId: 726355
+  uploadId: 819944

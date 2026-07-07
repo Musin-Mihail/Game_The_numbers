@@ -17,12 +17,13 @@ namespace YG.EditorScr
 
         public static void OpenWindowIfExistUpdate()
         {
+            PluginPrefs.Load();
+            if (PluginPrefs.GetInt(NOTIFICATION_UPDATE_KEY, 0) == 1) return;
+
             modules = ModulesList.GetGeneratedList(ServerInfo.saveInfo);
 
             if (!ModulesInstaller.ExistUpdates(modules)) return;
-
-            PluginPrefs.Load();
-            if (PluginPrefs.GetInt(NOTIFICATION_UPDATE_KEY, 0) == 1) return;
+            if (!HasAnyUpdates(modules)) return;
 
             ShowWindow();
         }
@@ -68,7 +69,7 @@ namespace YG.EditorScr
 
             modules = ModulesList.GetGeneratedList(ServerInfo.saveInfo);
 
-            if (!ModulesInstaller.ExistUpdates(modules))
+            if (!HasAnyUpdates(modules))
             {
                 closing = true;
                 Unsubscribe();
@@ -100,6 +101,10 @@ namespace YG.EditorScr
 #else
                 EditorGUILayout.LabelField("All modules are relevant ✅", ok);
 #endif
+                GUILayout.FlexibleSpace();
+                DrawDontShowToggle();
+
+                if (EditorUtils.IsMouseOverWindow(this)) Repaint();
                 return;
             }
 
@@ -140,11 +145,15 @@ namespace YG.EditorScr
                     GUILayout.Label(last, lastStyle, GUILayout.Width(60));
 
                     // Critical (если есть) — красным
-                    if (m.critical)
+                    if (ModulesInstaller.IsCriticalUpdate(m))
                     {
                         var critStyle = TextStyles.Red();
                         critStyle.alignment = TextAnchor.MiddleCenter;
                         GUILayout.Label(" critical!", critStyle, GUILayout.Width(80));
+                    }
+                    else
+                    {
+                        GUILayout.Label(string.Empty, GUILayout.Width(80));
                     }
 
                     GUILayout.FlexibleSpace();
@@ -160,21 +169,22 @@ namespace YG.EditorScr
             {
                 if (ModulesInstaller.ApprovalDownload())
                 {
-                    foreach (var m in updatable)
-                        ModuleQueue.AddList(m.nameModule);
+                    if (ModulesInstaller.ApprovalDependencies(updatable))
+                    {
+                        foreach (var m in updatable)
+                            ModuleQueue.AddList(m, true, false);
 
-                    ModuleQueue.ProcessInstallModulesInTurn();
+                        ModuleQueue.ProcessInstallModulesInTurn();
+                    }
                 }
             }
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 
+            GUILayout.FlexibleSpace();
             GUILayout.Space(10);
 
-            EditorGUI.BeginChangeCheck();
-            allowShowWindow = EditorGUILayout.ToggleLeft(Langs.dontShowAnymore, allowShowWindow);
-            if (EditorGUI.EndChangeCheck())
-                PluginPrefs.SetInt(NOTIFICATION_UPDATE_KEY, allowShowWindow ? 1 : 0);
+            DrawDontShowToggle();
 
             if (EditorUtils.IsMouseOverWindow(this)) Repaint();
 
@@ -191,5 +201,31 @@ namespace YG.EditorScr
                 return v;
             }
         }
+
+        private void DrawDontShowToggle()
+        {
+            EditorGUI.BeginChangeCheck();
+            allowShowWindow = EditorGUILayout.ToggleLeft(Langs.dontShowAnymore, allowShowWindow);
+            if (EditorGUI.EndChangeCheck())
+                PluginPrefs.SetInt(NOTIFICATION_UPDATE_KEY, allowShowWindow ? 1 : 0);
+        }
+
+        private static bool HasAnyUpdates(List<Module> list)
+        {
+            if (list == null || list.Count == 0)
+                return false;
+
+            foreach (var m in list)
+            {
+                if (string.IsNullOrEmpty(m.projectVersion))
+                    continue;
+
+                if (!ModulesInstaller.IsModuleCurrentVersion(m))
+                    return true;
+            }
+
+            return false;
+        }
+
     }
 }

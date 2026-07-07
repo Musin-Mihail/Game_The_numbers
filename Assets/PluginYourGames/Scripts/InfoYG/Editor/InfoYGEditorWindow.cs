@@ -17,6 +17,7 @@ namespace YG.EditorScr
         private string lastPlatform;
         private int versionUpdates;
         private bool isExampleFiles = true;
+        private bool lastAutoDefineSymbols;
 
         private Texture2D iconPluginYG2, iconSettings, iconDebugging, iconTemplate, iconConnect, iconPlatform;
         private Vector2 scrollPosition;
@@ -42,7 +43,10 @@ namespace YG.EditorScr
             ExampleScenes.LoadSceneList();
 
             if (scr != null && scr.Basic.platform != null)
+            {
                 lastPlatform = PlatformSettings.currentPlatformFullName;
+                lastAutoDefineSymbols = scr.Basic.autoDefineSymbols;
+            }
 
             Serialize();
             YGEditorStyles.ReinitializeStyles();
@@ -130,16 +134,37 @@ namespace YG.EditorScr
 
         public static bool CreateIcon(string pach, out Texture2D textureProperty)
         {
-            if (!File.Exists(pach))
+            textureProperty = null;
+
+            if (string.IsNullOrEmpty(pach) || !File.Exists(pach))
             {
-                textureProperty = null;
                 return false;
+            }
+
+            string assetPath = GetAssetPath(pach);
+            if (!string.IsNullOrEmpty(assetPath))
+            {
+                textureProperty = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
+                if (textureProperty != null)
+                    return true;
             }
 
             byte[] fileData = File.ReadAllBytes(pach);
             textureProperty = new Texture2D(2, 2);
             textureProperty.LoadImage(fileData);
+            textureProperty.hideFlags = HideFlags.HideAndDontSave;
             return true;
+        }
+
+        private static string GetAssetPath(string fullPath)
+        {
+            string dataPath = Path.GetFullPath(Application.dataPath).Replace("\\", "/");
+            string normalizedPath = Path.GetFullPath(fullPath).Replace("\\", "/");
+
+            if (!normalizedPath.StartsWith(dataPath + "/", StringComparison.OrdinalIgnoreCase))
+                return null;
+
+            return "Assets" + normalizedPath.Substring(dataPath.Length);
         }
 
         private void OnGUI()
@@ -155,6 +180,7 @@ namespace YG.EditorScr
             if (scr == null)
             {
                 GUILayout.Label("Error!", EditorStyles.boldLabel);
+                EditorGUILayout.EndScrollView();
                 return;
             }
             GUIStyle styleOrange = TextStyles.Orange();
@@ -211,13 +237,13 @@ namespace YG.EditorScr
             GUILayout.BeginHorizontal();
 
             GUIStyle styleHeader = TextStyles.White();
-            styleHeader.fontSize = 18;
+            styleHeader.fontSize = 21;
             styleHeader.fontStyle = FontStyle.Bold;
 
             GUIStyle styleHeader2 = TextStyles.Gray();
-            styleHeader2.fontSize = 12;
+            styleHeader2.fontSize = 11;
             styleHeader2.fontStyle = FontStyle.Bold;
-
+            
             if (iconPluginYG2)
             {
                 GUILayout.Space(20);
@@ -226,20 +252,37 @@ namespace YG.EditorScr
                 GUI.DrawTexture(textureRect, iconPluginYG2);
                 GUILayout.Space(10);
 
-                Rect textureMiddleRect = GUILayoutUtility.GetRect(20, 20, GUILayout.ExpandWidth(false));
-                Vector2 pivot = new Vector2(textureMiddleRect.x + textureMiddleRect.width / 2, textureMiddleRect.y + textureMiddleRect.height / 2);
-                Matrix4x4 originalMatrix = GUI.matrix;
-                GUIUtility.RotateAroundPivot(45f, pivot);
-                Rect rotatedRect = new Rect(textureMiddleRect.x + 7, textureMiddleRect.y + 7, textureMiddleRect.width, textureMiddleRect.height);
-                GUI.DrawTexture(rotatedRect, iconConnect);
-                GUI.matrix = originalMatrix;
-                GUILayout.Space(8);
-
-                if (iconPlatform)
+                if (scr.Basic.platform != null)
                 {
-                    Rect textureLastRect = GUILayoutUtility.GetRect(40, 40, GUILayout.ExpandWidth(false));
-                    GUI.DrawTexture(textureLastRect, iconPlatform);
-                    GUILayout.Space(10);
+                    Rect textureMiddleRect = GUILayoutUtility.GetRect(20, 20, GUILayout.ExpandWidth(false));
+                    Vector2 pivot = new Vector2(textureMiddleRect.x + textureMiddleRect.width / 2, textureMiddleRect.y + textureMiddleRect.height / 2);
+                    Matrix4x4 originalMatrix = GUI.matrix;
+                    GUIUtility.RotateAroundPivot(45f, pivot);
+                    Rect rotatedRect = new Rect(textureMiddleRect.x + 7, textureMiddleRect.y + 7, textureMiddleRect.width, textureMiddleRect.height);
+                    GUI.DrawTexture(rotatedRect, iconConnect);
+                    GUI.matrix = originalMatrix;
+
+                    if (iconPlatform)
+                    {
+                        GUILayout.Space(10);
+                        Rect textureLastRect = GUILayoutUtility.GetRect(40, 40, GUILayout.ExpandWidth(false));
+                        GUI.DrawTexture(textureLastRect, iconPlatform);
+                        GUILayout.Space(20);
+                    }
+                    else
+                    {
+                        GUILayout.Space(5);
+                        GUIStyle stylePlatformLabel = TextStyles.Header();
+                        stylePlatformLabel.fontSize = 30;
+                        stylePlatformLabel.fontStyle = FontStyle.Bold;
+                        stylePlatformLabel.alignment = TextAnchor.MiddleLeft;
+
+                        string platformLabel = TextStyles.RemoveLowercaseLetters(scr.Basic.platform.NameBase());
+
+                        Vector2 size = stylePlatformLabel.CalcSize(new GUIContent(platformLabel));
+                        EditorGUILayout.LabelField(platformLabel, stylePlatformLabel, GUILayout.Width(size.x), GUILayout.Height(size.y));
+                        GUILayout.Space(10);
+                    }
                 }
             }
             else
@@ -249,7 +292,7 @@ namespace YG.EditorScr
             }
 
             GUILayout.BeginVertical();
-            EditorGUILayout.LabelField("PLUGIN YG2", styleHeader);
+            EditorGUILayout.LabelField("PLUGIN YG 2.0", styleHeader);
 
             EditorGUILayout.LabelField(Langs.fullNamePlugin.ToUpper(), styleHeader2);
             GUILayout.EndVertical();
@@ -321,6 +364,18 @@ namespace YG.EditorScr
 
             if (lastPlatform != currentPlatform)
             {
+                EditorApplication.delayCall += () =>
+                {
+                    foreach (var w in Resources.FindObjectsOfTypeAll<EditorWindow>())
+                    {
+                        if (w.titleContent != null && w.titleContent.text.Contains("Select Platform Settings"))
+                        {
+                            w.Close();
+                            break;
+                        }
+                    }
+                };
+
                 InfoYG.SetPlatform(currentPlatform);
 
                 if (currentPlatform == "NullPlatform")
@@ -441,7 +496,19 @@ namespace YG.EditorScr
             EditorGUILayout.EndScrollView();
 
             if (EditorGUI.EndChangeCheck())
+            {
                 serializedObject.ApplyModifiedProperties();
+
+                if (scr != null && scr.Basic != null)
+                {
+                    bool current = scr.Basic.autoDefineSymbols;
+                    if (current != lastAutoDefineSymbols)
+                    {
+                        lastAutoDefineSymbols = current;
+                        DefineSymbols.RefreshAutoDefineSubscription();
+                    }
+                }
+            }
 
             if (EditorUtils.IsMouseOverWindow(this))
                 Repaint();
@@ -450,64 +517,23 @@ namespace YG.EditorScr
         private int VersionUpdatesLabel()
         {
             int versionUpdates = 0;
-            List<string> modulesStr = new List<string>
+            List<Module> modules = ModulesList.GetGeneratedList(ServerInfo.saveInfo);
+
+            for (int i = 0; i < modules.Count; i++)
             {
-                $"PluginYG2 v{InfoYG.VERSION_YG2}"
-            };
-
-            string[] platfomFolders = Directory.GetDirectories(InfoYG.PATCH_PC_PLATFORMS);
-            string[] platfomNames = new string[platfomFolders.Length];
-
-            for (int i = 0; i < platfomFolders.Length; i++)
-                platfomNames[i] = Path.GetFileName(platfomFolders[i]);
-
-            for (int i = 0; i < platfomNames.Length; i++)
-            {
-                string platfomVersionPathc = $"{platfomFolders[i]}/Version.txt";
-
-                if (File.Exists(platfomVersionPathc))
-                {
-                    string version = File.ReadAllText(platfomVersionPathc);
-                    platfomNames[i] += " " + version;
-                }
-            }
-
-            modulesStr.AddRange(platfomNames);
-
-            if (File.Exists(InfoYG.FILE_MODULES_PC))
-                modulesStr.AddRange(File.ReadAllLines(InfoYG.FILE_MODULES_PC).ToList());
-
-            for (int i = 0; i < modulesStr.Count; i++)
-            {
-                if (modulesStr[i] == string.Empty)
+                Module module = modules[i];
+                if (module == null || string.IsNullOrEmpty(module.projectVersion))
                     continue;
 
-                string name = modulesStr[i];
-                string version = "0";
+                if (ModulesInstaller.IsModuleCurrentVersion(module))
+                    continue;
 
-                int spaceIndex = modulesStr[i].IndexOf(" ");
-                if (spaceIndex > -1)
-                {
-                    name = modulesStr[i].Remove(spaceIndex);
-                    version = modulesStr[i].Remove(0, spaceIndex + 2);
-                }
+                versionUpdates = 1;
 
-                for (int j = 0; j < ServerInfo.saveInfo.modules.Length; j++)
-                {
-                    if (name == ServerInfo.saveInfo.modules[j].name)
-                    {
-                        float.TryParse(version, NumberStyles.Float, CultureInfo.InvariantCulture, out float projectVersion);
-                        float.TryParse(ServerInfo.saveInfo.modules[j].version, NumberStyles.Float, CultureInfo.InvariantCulture, out float lastVersion);
-
-                        if (lastVersion > projectVersion)
-                        {
-                            versionUpdates = 1;
-                            if (ServerInfo.saveInfo.modules[j].critical)
-                                return 2;
-                        }
-                    }
-                }
+                if (ModulesInstaller.IsCriticalUpdate(module))
+                    return 2;
             }
+
             return versionUpdates;
         }
 
