@@ -9,15 +9,13 @@ namespace View.Grid
     /// </summary>
     public class GridInputHandler
     {
-        private readonly GameEvents _gameEvents;
         private readonly GridVisuals _gridVisuals;
 
         private Guid? _firstSelectedCellId;
         private System.Collections.Generic.List<Guid> _allowedCells;
 
-        public GridInputHandler(GameEvents gameEvents, GridVisuals gridVisuals)
+        public GridInputHandler(GridVisuals gridVisuals)
         {
-            _gameEvents = gameEvents;
             _gridVisuals = gridVisuals;
         }
 
@@ -48,7 +46,7 @@ namespace View.Grid
                 else
                 {
                     _gridVisuals.SetSelectionVisual(_firstSelectedCellId.Value, false);
-                    _gameEvents.onAttemptMatch.Raise((_firstSelectedCellId.Value, clickedCellId));
+                    GlobalEvents.OnAttemptMatch?.Invoke((_firstSelectedCellId.Value, clickedCellId));
                     _firstSelectedCellId = null;
                 }
             }

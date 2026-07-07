@@ -8,12 +8,35 @@ namespace View.UI
     /// </summary>
     public class FloatingScorePool : MonoBehaviour
     {
-        [SerializeField] private GameObject floatingScorePrefab;
-        [SerializeField] private Transform canvasTransform;
+        private GameObject _floatingScorePrefab;
         [SerializeField] private int initialPoolSize = 10;
-        [SerializeField] private GameObject parent;
 
+        private Transform _canvasTransform;
+        private Transform _parentTransform;
         private readonly Queue<FloatingScore> _pool = new();
+
+        private void Awake()
+        {
+            _floatingScorePrefab = Resources.Load<GameObject>("Prefabs/Prefab_FloatingScore");
+            
+            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var t in allTransforms)
+            {
+                if (t.name == "Score" && t.parent != null && t.parent.name == "Content")
+                {
+                    _canvasTransform = t;
+                    _parentTransform = t;
+                    break;
+                }
+            }
+            
+            if (_canvasTransform == null)
+            {
+                Debug.LogError("[FloatingScorePool] Не удалось найти 'Score' внутри 'Content'.");
+                _canvasTransform = transform;
+                _parentTransform = transform;
+            }
+        }
 
         private void Start()
         {
@@ -26,8 +49,8 @@ namespace View.UI
 
         private FloatingScore CreateNewInstance()
         {
-            var go = Instantiate(floatingScorePrefab, canvasTransform);
-            go.transform.SetParent(parent.transform);
+            var go = Instantiate(_floatingScorePrefab, _canvasTransform, false);
+            go.transform.SetParent(_parentTransform, false);
             var floatingScore = go.GetComponent<FloatingScore>();
             return floatingScore;
         }

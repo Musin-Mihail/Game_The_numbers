@@ -13,26 +13,34 @@ namespace View.UI
     /// </summary>
     public class StatisticsView : MonoBehaviour
     {
-        [Header("UI Dependencies")]
-        [SerializeField] private TextMeshProUGUI scoreText;
-        [Tooltip("Текстовое поле для отображения рекорда")]
-        [SerializeField] private TextMeshProUGUI recordText;
-        [SerializeField] private TextMeshProUGUI multiplierText;
-
-        [Header("Event Listening")]
-        [SerializeField] private GameEvents gameEvents;
+        private TextMeshProUGUI _scoreText;
+        private TextMeshProUGUI _recordText;
+        private TextMeshProUGUI _multiplierText;
 
         private LocalizationManager _localizationManager;
         private StatisticsModel _statisticsModel;
+
+        private void Awake()
+        {
+            BindUI();
+        }
+
+        private void BindUI()
+        {
+            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var t in allTransforms)
+            {
+                if (t.name == "Txt_Score") _scoreText = t.GetComponent<TextMeshProUGUI>();
+                else if (t.name == "Txt_Record") _recordText = t.GetComponent<TextMeshProUGUI>();
+                else if (t.name == "Multiplier") _multiplierText = t.GetComponent<TextMeshProUGUI>();
+            }
+        }
 
         private void OnEnable()
         {
             _localizationManager ??= ServiceProvider.GetService<LocalizationManager>();
             _statisticsModel ??= ServiceProvider.GetService<StatisticsModel>();
-            if (gameEvents)
-            {
-                gameEvents.onStatisticsChanged.AddListener(UpdateStatisticsUI);
-            }
+            GlobalEvents.OnStatisticsChanged += UpdateStatisticsUI;
 
             LocalizationManager.OnLanguageChanged += HandleLanguageChanged;
             if (_statisticsModel != null)
@@ -43,11 +51,7 @@ namespace View.UI
 
         private void OnDisable()
         {
-            if (gameEvents)
-            {
-                gameEvents.onStatisticsChanged.RemoveListener(UpdateStatisticsUI);
-            }
-
+            GlobalEvents.OnStatisticsChanged -= UpdateStatisticsUI;
             LocalizationManager.OnLanguageChanged -= HandleLanguageChanged;
         }
 
@@ -73,19 +77,19 @@ namespace View.UI
                 if (_localizationManager == null) return;
             }
 
-            if (scoreText)
+            if (_scoreText)
             {
-                scoreText.text = string.Format(_localizationManager.Get("score"), data.score);
+                _scoreText.text = string.Format(_localizationManager.Get("score"), data.score);
             }
 
-            if (recordText)
+            if (_recordText)
             {
-                recordText.text = string.Format(_localizationManager.Get("record"), YG2.saves.record);
+                _recordText.text = string.Format(_localizationManager.Get("record"), YG2.saves.record);
             }
 
-            if (multiplierText)
+            if (_multiplierText)
             {
-                multiplierText.text = string.Format(_localizationManager.Get("multiplier"), data.multiplier);
+                _multiplierText.text = string.Format(_localizationManager.Get("multiplier"), data.multiplier);
             }
         }
     }

@@ -10,27 +10,17 @@ namespace Core.Platform
     /// </summary>
     public class InterstitialAdTimer : MonoBehaviour
     {
-        [Header("Каналы событий")]
-        [Tooltip("Ссылка на ScriptableObject с игровыми событиями")]
-        [SerializeField] private GameEvents gameEvents;
-
         private float _sessionStartTime;
 
         private void OnEnable()
         {
             _sessionStartTime = Time.realtimeSinceStartup;
-            if (gameEvents)
-            {
-                gameEvents.onAddExistingNumbers.AddListener(OnAddExistingNumbersTriggered);
-            }
+            GlobalEvents.OnAddExistingNumbers += OnAddExistingNumbersTriggered;
         }
 
         private void OnDisable()
         {
-            if (gameEvents)
-            {
-                gameEvents.onAddExistingNumbers.RemoveListener(OnAddExistingNumbersTriggered);
-            }
+            GlobalEvents.OnAddExistingNumbers -= OnAddExistingNumbersTriggered;
         }
 
         /// <summary>

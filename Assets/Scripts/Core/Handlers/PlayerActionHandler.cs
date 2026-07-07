@@ -17,7 +17,6 @@ namespace Core.Handlers
         private readonly ActionHistory _actionHistory;
         private readonly GridModel _gridModel;
         private readonly StatisticsModel _statisticsModel;
-        private readonly GameEvents _gameEvents;
         private readonly GameManager _gameManager;
         private readonly ConfirmationDialog _confirmationDialog;
         private readonly LocalizationManager _localizationManager;
@@ -32,7 +31,6 @@ namespace Core.Handlers
             ActionHistory actionHistory,
             GridModel gridModel,
             StatisticsModel statisticsModel,
-            GameEvents gameEvents,
             GameManager gameManager,
             GameController gameController)
         {
@@ -40,15 +38,14 @@ namespace Core.Handlers
             _actionHistory = actionHistory;
             _gridModel = gridModel;
             _statisticsModel = statisticsModel;
-            _gameEvents = gameEvents;
             _gameManager = gameManager;
             _gameController = gameController;
 
             _confirmationDialog = ServiceProvider.GetService<ConfirmationDialog>();
             _localizationManager = ServiceProvider.GetService<LocalizationManager>();
 
-            _gameEvents.onAddExistingNumbers.AddListener(AddExistingNumbersAsNewLines);
-            _gameEvents.onUndoLastAction.AddListener(UndoLastAction);
+            GlobalEvents.OnAddExistingNumbers += AddExistingNumbersAsNewLines;
+            GlobalEvents.OnUndoLastAction += UndoLastAction;
         }
 
         /// <summary>
@@ -56,8 +53,8 @@ namespace Core.Handlers
         /// </summary>
         public void Dispose()
         {
-            _gameEvents.onAddExistingNumbers.RemoveListener(AddExistingNumbersAsNewLines);
-            _gameEvents.onUndoLastAction.RemoveListener(UndoLastAction);
+            GlobalEvents.OnAddExistingNumbers -= AddExistingNumbersAsNewLines;
+            GlobalEvents.OnUndoLastAction -= UndoLastAction;
         }
 
         /// <summary>
@@ -98,7 +95,7 @@ namespace Core.Handlers
 
             if (!_actionCountersModel.IsUndoAvailable())
             {
-                _gameEvents.onRequestRefillCounters.Raise();
+                GlobalEvents.OnRequestRefillCounters?.Invoke();
                 return;
             }
 
@@ -109,7 +106,7 @@ namespace Core.Handlers
                 _actionCountersModel.DecrementUndo();
             }
 
-            _gameEvents.onStatisticsChanged.Raise((_statisticsModel.Score, _statisticsModel.Multiplier));
+            GlobalEvents.OnStatisticsChanged?.Invoke((_statisticsModel.Score, _statisticsModel.Multiplier));
             _gameManager?.RequestSave();
         }
     }

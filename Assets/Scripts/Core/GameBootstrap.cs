@@ -23,19 +23,13 @@ namespace Core
     /// </summary>
     public class GameBootstrap : MonoBehaviour
     {
-        [Header("Зависимости сцены")]
-        [SerializeField] private GridView gridView;
-        [SerializeField] private HeaderNumberDisplay headerNumberDisplay;
-        [SerializeField] private ConfirmationDialog confirmationDialog;
-        [SerializeField] private LeaderboardUpdater leaderboardUpdater;
-        [SerializeField] private ShopManager shopManager;
-        [SerializeField] private GameManager gameManager;
-
-        [Header("Экраны UI")]
-        [SerializeField] private GameObject loadingScreen;
-
-        [Header("Каналы событий")]
-        [SerializeField] private GameEvents gameEvents;
+        private GridView gridView;
+        private HeaderNumberDisplay headerNumberDisplay;
+        private ConfirmationDialog confirmationDialog;
+        private LeaderboardUpdater leaderboardUpdater;
+        private ShopManager shopManager;
+        private GameManager gameManager;
+        private GameObject loadingScreen;
 
         private const int MaxLoadAttempts = 3;
         private const float LoadAttemptDelay = 1.0f;
@@ -46,44 +40,52 @@ namespace Core
         private readonly List<IDisposable> _disposableServices = new();
         private LocalizationManager _localizationManager;
 
-        private void Awake()
+        private void BindCoreSystems()
         {
-            if (loadingScreen) loadingScreen.SetActive(true);
-            if (gameEvents)
-            {
-                if (gameEvents.onTutorialStarted == null) gameEvents.onTutorialStarted = ScriptableObject.CreateInstance<StatefulVoidEvent>();
-                if (gameEvents.onTutorialCompleted == null) gameEvents.onTutorialCompleted = ScriptableObject.CreateInstance<VoidEvent>();
-                if (gameEvents.onSetAllowedInputCells == null) gameEvents.onSetAllowedInputCells = ScriptableObject.CreateInstance<GuidListEvent>();
-                if (gameEvents.onIdleHintFound == null) gameEvents.onIdleHintFound = ScriptableObject.CreateInstance<CellPairEvent>();
+            // Ищем компоненты по типу. FindObjectsInactive.Include позволяет найти их даже на выключенных объектах UI!
+            gridView = UnityEngine.Object.FindFirstObjectByType<GridView>(FindObjectsInactive.Include);
+            headerNumberDisplay = UnityEngine.Object.FindFirstObjectByType<HeaderNumberDisplay>(FindObjectsInactive.Include);
+            confirmationDialog = UnityEngine.Object.FindFirstObjectByType<ConfirmationDialog>(FindObjectsInactive.Include);
+            leaderboardUpdater = UnityEngine.Object.FindFirstObjectByType<LeaderboardUpdater>(FindObjectsInactive.Include);
+            shopManager = UnityEngine.Object.FindFirstObjectByType<ShopManager>(FindObjectsInactive.Include);
+            gameManager = UnityEngine.Object.FindFirstObjectByType<GameManager>(FindObjectsInactive.Include);
 
-                if (gameEvents.onYandexSDKInitialized != null)
+            // Загрузочный экран ищем по всем объектам сцены, так как у него нет своего уникального скрипта
+            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var t in allTransforms)
+            {
+                if (t.name == "UI_LoadingScreen")
                 {
-                    gameEvents.onYandexSDKInitialized.Reset();
+                    loadingScreen = t.gameObject;
+                    break;
                 }
             }
 
-            if (!gameEvents)
-            {
-                Debug.LogError("ОШИБКА: 'GameEvents' не назначен в инспекторе!", this);
-                return;
-            }
+            if (gridView == null) Debug.LogWarning("[GameBootstrap] Компонент GridView не найден ни на одном объекте.");
+            if (gameManager == null) Debug.LogWarning("[GameBootstrap] Компонент GameManager не найден ни на одном объекте.");
+        }
+
+        private void Awake()
+        {
+            BindCoreSystems();
+            
+            if (loadingScreen) loadingScreen.SetActive(true);
 
             ServiceProvider.Clear();
-            ServiceProvider.Register(gameEvents);
 
-            _localizationManager = new LocalizationManager(gameEvents);
+            _localizationManager = new LocalizationManager();
             ServiceProvider.Register(_localizationManager);
 
             var gridModel = new GridModel();
             var statisticsModel = new StatisticsModel();
-            var actionCountersModel = new ActionCountersModel(gameEvents);
+            var actionCountersModel = new ActionCountersModel();
             var actionHistory = new ActionHistory();
             ServiceProvider.Register(gridModel);
             ServiceProvider.Register(statisticsModel);
             ServiceProvider.Register(actionCountersModel);
             ServiceProvider.Register(actionHistory);
 
-            var yandexSaveLoadService = new YandexSaveLoadService(gridModel, statisticsModel, actionCountersModel, gameEvents);
+            var yandexSaveLoadService = new YandexSaveLoadService(gridModel, statisticsModel, actionCountersModel);
             var yandexLeaderboardService = new YandexLeaderboardService(GameConstants.LeaderboardName);
             var yandexPlatformService = new YandexPlatformService();
             ServiceProvider.Register<ISaveLoadService>(yandexSaveLoadService);
@@ -91,7 +93,7 @@ namespace Core
             ServiceProvider.Register<IPlatformServices>(yandexPlatformService);
             _disposableServices.Add(yandexPlatformService);
 
-            var tutorialHandler = new Core.Handlers.TutorialHandler(gameEvents, gridModel, yandexSaveLoadService);
+            var tutorialHandler = new Core.Handlers.TutorialHandler(gridModel, yandexSaveLoadService);
             ServiceProvider.Register(tutorialHandler);
             _disposableServices.Add(tutorialHandler);
 
@@ -104,14 +106,13 @@ namespace Core
             ServiceProvider.Register(headerNumberDisplay);
             ServiceProvider.Register(confirmationDialog);
 
-            var idleHintHandler = new Core.Handlers.IdleHintHandler(gameEvents, gridModel, matchValidator);
+            var idleHintHandler = new Core.Handlers.IdleHintHandler(gridModel, matchValidator);
             ServiceProvider.Register(idleHintHandler);
             _disposableServices.Add(idleHintHandler);
 
             _gameController = new GameController(
                 gridModel,
                 matchValidator,
-                gameEvents,
                 actionHistory,
                 actionCountersModel,
                 statisticsModel,
@@ -134,10 +135,17 @@ namespace Core
             var leaderboardService = ServiceProvider.GetService<ILeaderboardService>();
             var actionCountersModel = ServiceProvider.GetService<ActionCountersModel>();
 
-            gameManager.Initialize(saveLoadService);
-            leaderboardUpdater.Initialize(leaderboardService, gameEvents);
-            shopManager.Initialize(gameEvents, actionCountersModel);
-            gridView.Initialize(gameEvents, ServiceProvider.GetService<GridModel>(), headerNumberDisplay);
+            if (gameManager != null) gameManager.Initialize(saveLoadService);
+            else Debug.LogError("[GameBootstrap] GameManager не инициализирован!");
+
+            if (leaderboardUpdater != null) leaderboardUpdater.Initialize(leaderboardService);
+            else Debug.LogError("[GameBootstrap] LeaderboardUpdater не инициализирован!");
+
+            if (shopManager != null) shopManager.Initialize(actionCountersModel);
+            else Debug.LogError("[GameBootstrap] ShopManager не инициализирован!");
+
+            if (gridView != null) gridView.Initialize(ServiceProvider.GetService<GridModel>(), headerNumberDisplay);
+            else Debug.LogError("[GameBootstrap] GridView не инициализирован!");
         }
 
         /// <summary>
@@ -175,7 +183,7 @@ namespace Core
             Debug.Log($"Язык определен из окружения SDK: '{langToLoad}'.");
 
             _localizationManager.SetInitialLanguage(langToLoad);
-            gameEvents.onYandexSDKInitialized.Raise();
+            GlobalEvents.OnYandexSDKInitialized?.Invoke();
             if (!gameManager) return;
             StartCoroutine(LoadGameWithRetries());
         }
@@ -226,7 +234,7 @@ namespace Core
                     YG2.saves.seenMigrationIds.Add(GameConstants.ScoreResetMigrationId);
                     var statisticsModel = ServiceProvider.GetService<StatisticsModel>();
                     statisticsModel.SetState(YG2.saves.statistics.score, YG2.saves.statistics.multiplier);
-                    gameEvents.onStatisticsChanged.Raise((statisticsModel.Score, statisticsModel.Multiplier));
+                    GlobalEvents.OnStatisticsChanged?.Invoke((statisticsModel.Score, statisticsModel.Multiplier));
                     saveLoadService.RequestSave();
                 }
 
@@ -285,7 +293,7 @@ namespace Core
         private void StartNewGameAndFinalize()
         {
             _gameController.StartNewGame(true);
-            gameEvents.onToggleTopLine.Raise(true);
+            GlobalEvents.OnToggleTopLine?.Invoke(true);
 
             FinalizeGameSetup();
         }
@@ -296,7 +304,7 @@ namespace Core
             SetupListeners();
             if (!YG2.saves.seenUpdateVersions.Contains(GameConstants.GameVersion))
             {
-                gameEvents.onNewUpdateAvailable.Raise();
+                GlobalEvents.OnNewUpdateAvailable?.Invoke();
             }
 
             if (loadingScreen) loadingScreen.SetActive(false);
@@ -314,16 +322,16 @@ namespace Core
                     confirmationDialog.Show(message, yes, no, StartNewGameFromButton, null, new Vector2(0, 450));
                 };
 
-                gameEvents.onRequestNewGame.AddListener(_requestNewGameAction);
-                gameEvents.onRequestRefillCounters.AddListener(HandleRequestRefillCounters);
-                gameEvents.onRequestDisableCounters.AddListener(HandleRequestDisableCounters);
+                GlobalEvents.OnRequestNewGame += _requestNewGameAction;
+                GlobalEvents.OnRequestRefillCounters += HandleRequestRefillCounters;
+                GlobalEvents.OnRequestDisableCounters += HandleRequestDisableCounters;
             }
             else
             {
-                gameEvents.onRequestNewGame.AddListener(StartNewGameFromButton);
+                GlobalEvents.OnRequestNewGame += StartNewGameFromButton;
             }
 
-            gameEvents.onRequestHardReset.AddListener(HandleHardReset);
+            GlobalEvents.OnRequestHardReset += HandleHardReset;
         }
 
         /// <summary>
@@ -349,7 +357,7 @@ namespace Core
             var message = _localizationManager.Get("buyInfiniteHintsPrompt");
             var yes = _localizationManager.Get("yes");
             var no = _localizationManager.Get("no");
-            confirmationDialog.Show(message, yes, no, () => { gameEvents.onDisableCountersConfirmed.Raise(); }, null, new Vector2(0, 350));
+            confirmationDialog.Show(message, yes, no, () => { GlobalEvents.OnDisableCountersConfirmed?.Invoke(); }, null, new Vector2(0, 350));
         }
 
         /// <summary>
@@ -360,7 +368,7 @@ namespace Core
             var message = _localizationManager.Get("watchAdPrompt");
             var yes = _localizationManager.Get("yes");
             var no = _localizationManager.Get("no");
-            confirmationDialog.Show(message, yes, no, () => { gameEvents.onShowRewardedAdForRefill.Raise(); }, null, new Vector2(0, 370));
+            confirmationDialog.Show(message, yes, no, () => { GlobalEvents.OnShowRewardedAdForRefill?.Invoke(); }, null, new Vector2(0, 370));
         }
 
         /// <summary>
@@ -368,23 +376,20 @@ namespace Core
         /// </summary>
         private void OnDestroy()
         {
-            if (gameEvents)
+            GlobalEvents.OnRequestHardReset -= HandleHardReset;
+            if (confirmationDialog)
             {
-                gameEvents.onRequestHardReset.RemoveListener(HandleHardReset);
-                if (confirmationDialog)
+                if (_requestNewGameAction != null)
                 {
-                    if (_requestNewGameAction != null)
-                    {
-                        gameEvents.onRequestNewGame.RemoveListener(_requestNewGameAction);
-                    }
+                    GlobalEvents.OnRequestNewGame -= _requestNewGameAction;
+                }
 
-                    gameEvents.onRequestRefillCounters.RemoveListener(HandleRequestRefillCounters);
-                    gameEvents.onRequestDisableCounters.RemoveListener(HandleRequestDisableCounters);
-                }
-                else
-                {
-                    gameEvents.onRequestNewGame.RemoveListener(StartNewGameFromButton);
-                }
+                GlobalEvents.OnRequestRefillCounters -= HandleRequestRefillCounters;
+                GlobalEvents.OnRequestDisableCounters -= HandleRequestDisableCounters;
+            }
+            else
+            {
+                GlobalEvents.OnRequestNewGame -= StartNewGameFromButton;
             }
 
             foreach (var service in _disposableServices)
@@ -403,7 +408,7 @@ namespace Core
         {
             var statisticsModel = ServiceProvider.GetService<StatisticsModel>();
             statisticsModel.SetState(0, statisticsModel.Multiplier);
-            gameEvents.onStatisticsChanged.Raise((statisticsModel.Score, statisticsModel.Multiplier));
+            GlobalEvents.OnStatisticsChanged?.Invoke((statisticsModel.Score, statisticsModel.Multiplier));
             _gameController.StartNewGame(false);
         }
     }

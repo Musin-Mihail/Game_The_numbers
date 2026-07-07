@@ -10,20 +10,35 @@ namespace View.UI
     /// </summary>
     public class ConfirmationDialog : MonoBehaviour
     {
-        [SerializeField] private TextMeshProUGUI messageText;
-        [SerializeField] private Button yesButton;
-        [SerializeField] private Button noButton;
-        [SerializeField] private TextMeshProUGUI yesButtonText;
-        [SerializeField] private TextMeshProUGUI noButtonText;
-        [SerializeField] private RectTransform panel;
+        private TextMeshProUGUI _messageText;
+        private Button _yesButton;
+        private Button _noButton;
+        private TextMeshProUGUI _yesButtonText;
+        private TextMeshProUGUI _noButtonText;
+        private RectTransform _panel;
 
         private Action _onYesAction;
         private Action _onNoAction;
 
         private void Awake()
         {
-            yesButton.onClick.AddListener(OnYesClicked);
-            noButton.onClick.AddListener(OnNoClicked);
+            BindUI();
+            if (_yesButton != null) _yesButton.onClick.AddListener(OnYesClicked);
+            if (_noButton != null) _noButton.onClick.AddListener(OnNoClicked);
+        }
+
+        private void BindUI()
+        {
+            _panel = transform.Find("Panel")?.GetComponent<RectTransform>();
+            if (_panel != null)
+            {
+                _messageText = _panel.Find("Txt_Message")?.GetComponent<TextMeshProUGUI>();
+                _yesButton = _panel.Find("Btn_Yes")?.GetComponent<Button>();
+                if (_yesButton != null) _yesButtonText = _yesButton.transform.Find("Txt_YesButton")?.GetComponent<TextMeshProUGUI>();
+                
+                _noButton = _panel.Find("Btn_No")?.GetComponent<Button>();
+                if (_noButton != null) _noButtonText = _noButton.transform.Find("Txt_NoButton")?.GetComponent<TextMeshProUGUI>();
+            }
         }
 
         /// <summary>
@@ -37,17 +52,17 @@ namespace View.UI
         /// <param name="newSize">Новый размер панели диалога.</param>
         public void Show(string message, string yesText, string noText, Action onYes, Action onNo, Vector2 newSize)
         {
-            panel.sizeDelta = newSize;
-            messageText.text = message;
+            if (_panel != null) _panel.sizeDelta = newSize;
+            if (_messageText != null) _messageText.text = message;
 
-            if (yesButtonText) yesButtonText.text = yesText;
-            if (noButtonText) noButtonText.text = noText;
+            if (_yesButtonText) _yesButtonText.text = yesText;
+            if (_noButtonText) _noButtonText.text = noText;
 
             _onYesAction = onYes;
             _onNoAction = onNo;
 
-            yesButton.gameObject.SetActive(!string.IsNullOrEmpty(yesText));
-            noButton.gameObject.SetActive(!string.IsNullOrEmpty(noText));
+            if (_yesButton != null) _yesButton.gameObject.SetActive(!string.IsNullOrEmpty(yesText));
+            if (_noButton != null) _noButton.gameObject.SetActive(!string.IsNullOrEmpty(noText));
 
             gameObject.SetActive(true);
         }
@@ -66,8 +81,8 @@ namespace View.UI
 
         private void OnDestroy()
         {
-            yesButton.onClick.RemoveListener(OnYesClicked);
-            noButton.onClick.RemoveListener(OnNoClicked);
+            if (_yesButton != null) _yesButton.onClick.RemoveListener(OnYesClicked);
+            if (_noButton != null) _noButton.onClick.RemoveListener(OnNoClicked);
         }
     }
 }

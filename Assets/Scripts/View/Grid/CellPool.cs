@@ -8,9 +8,30 @@ namespace View.Grid
     /// </summary>
     public class CellPool : MonoBehaviour
     {
-        [SerializeField] private GameObject cellPrefab;
-        [SerializeField] private Transform canvasTransform;
+        private GameObject _cellPrefab;
+        private Transform _canvasTransform;
         private readonly Queue<Cell> _pooledCells = new();
+
+        private void Awake()
+        {
+            _cellPrefab = Resources.Load<GameObject>("Prefabs/Prefab_Cell");
+            
+            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var t in allTransforms)
+            {
+                if (t.name == "Content" && t.parent != null && t.parent.name == "Viewport")
+                {
+                    _canvasTransform = t;
+                    break;
+                }
+            }
+            
+            if (_canvasTransform == null)
+            {
+                Debug.LogError("[CellPool] Не удалось найти 'Content' внутри 'Viewport' на Canvas.");
+                _canvasTransform = transform;
+            }
+        }
 
         /// <summary>
         /// Получает ячейку из пула или создает новую, если пул пуст.
@@ -25,12 +46,12 @@ namespace View.Grid
             }
             else
             {
-                var cellObj = Instantiate(cellPrefab, canvasTransform);
+                var cellObj = Instantiate(_cellPrefab, _canvasTransform, false);
                 cellObj.transform.SetAsFirstSibling();
                 cell = cellObj.GetComponent<Cell>();
             }
 
-            cell.transform.SetParent(canvasTransform, false);
+            cell.transform.SetParent(_canvasTransform, false);
             cell.gameObject.SetActive(true);
             return cell;
         }

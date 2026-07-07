@@ -19,11 +19,6 @@ namespace View.UI
         [SerializeField] private float animationSpeed = 2.0f;
         [SerializeField] private float scaleAmount = 1.1f;
         [SerializeField] private float rotationAmount = 5f;
-        [Header("Event Listening")]
-        [Tooltip("Событие, которое запускает анимацию.")]
-        [SerializeField] private VoidEvent onAnimationStart;
-        [Tooltip("Событие, которое останавливает анимацию.")]
-        [SerializeField] private VoidEvent onAnimationStop;
         [Header("Behavior")]
         [Tooltip("Отметьте, если эта кнопка используется специально для уведомлений об обновлении.")]
         [SerializeField] private bool isForUpdateNotification;
@@ -50,8 +45,6 @@ namespace View.UI
 
         private void OnEnable()
         {
-            if (onAnimationStart) onAnimationStart.AddListener(StartAnimation);
-            if (onAnimationStop) onAnimationStop.AddListener(StopAnimation);
             if (isForUpdateNotification && YG2.isSDKEnabled && !YG2.saves.seenUpdateVersions.Contains(GameConstants.GameVersion))
             {
                 StartAnimation();
@@ -60,9 +53,6 @@ namespace View.UI
 
         private void OnDisable()
         {
-            if (onAnimationStart) onAnimationStart.RemoveListener(StartAnimation);
-            if (onAnimationStop) onAnimationStop.RemoveListener(StopAnimation);
-
             StopAnimation();
         }
 

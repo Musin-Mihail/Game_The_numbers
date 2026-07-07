@@ -11,19 +11,16 @@ namespace View.UI
     /// </summary>
     public class LeaderboardEntry : MonoBehaviour
     {
-        [Header("UI Элементы игрока")]
-        [SerializeField] private GameObject playerInfoContainer;
-        [SerializeField] private TextMeshProUGUI rankText;
-        [SerializeField] private Image photoImage;
-        [SerializeField] private TextMeshProUGUI nameText;
-        [SerializeField] private TextMeshProUGUI scoreText;
-
         [Header("Стилизация текущего игрока")]
         [Tooltip("Множитель размера шрифта для строки текущего игрока.")]
         [SerializeField] private float fontSizeMultiplier = 1.2f;
 
-        [Header("UI Элемент разделителя")]
-        [SerializeField] private GameObject separatorContainer;
+        private GameObject _playerInfoContainer;
+        private TextMeshProUGUI _rankText;
+        private Image _photoImage;
+        private TextMeshProUGUI _nameText;
+        private TextMeshProUGUI _scoreText;
+        private GameObject _separatorContainer;
 
         private float _defaultRankFontSize;
         private float _defaultNameFontSize;
@@ -31,9 +28,23 @@ namespace View.UI
 
         private void Awake()
         {
-            if (rankText) _defaultRankFontSize = rankText.fontSize;
-            if (nameText) _defaultNameFontSize = nameText.fontSize;
-            if (scoreText) _defaultScoreFontSize = scoreText.fontSize;
+            BindUI();
+            if (_rankText) _defaultRankFontSize = _rankText.fontSize;
+            if (_nameText) _defaultNameFontSize = _nameText.fontSize;
+            if (_scoreText) _defaultScoreFontSize = _scoreText.fontSize;
+        }
+
+        private void BindUI()
+        {
+            _playerInfoContainer = transform.Find("Obj_PlayerInfo")?.gameObject;
+            if (_playerInfoContainer != null)
+            {
+                _rankText = _playerInfoContainer.transform.Find("Txt_Rank")?.GetComponent<TextMeshProUGUI>();
+                _photoImage = _playerInfoContainer.transform.Find("Img_Photo")?.GetComponent<Image>();
+                _nameText = _playerInfoContainer.transform.Find("Txt_Name")?.GetComponent<TextMeshProUGUI>();
+                _scoreText = _playerInfoContainer.transform.Find("Txt_Score")?.GetComponent<TextMeshProUGUI>();
+            }
+            _separatorContainer = transform.Find("Obj_Separator")?.gameObject;
         }
 
         /// <summary>
@@ -43,29 +54,29 @@ namespace View.UI
         /// <param name="isCurrentPlayer">True, если это запись текущего игрока.</param>
         public void Populate(LBPlayerData playerData, bool isCurrentPlayer)
         {
-            playerInfoContainer.SetActive(true);
-            separatorContainer.SetActive(false);
+            if (_playerInfoContainer != null) _playerInfoContainer.SetActive(true);
+            if (_separatorContainer != null) _separatorContainer.SetActive(false);
 
-            rankText.text = playerData.rank.ToString();
-            nameText.text = playerData.name;
-            scoreText.text = playerData.score.ToString();
+            if (_rankText != null) _rankText.text = playerData.rank.ToString();
+            if (_nameText != null) _nameText.text = playerData.name;
+            if (_scoreText != null) _scoreText.text = playerData.score.ToString();
 
-            if (photoImage && !string.IsNullOrEmpty(playerData.photo))
+            if (_photoImage && !string.IsNullOrEmpty(playerData.photo))
             {
-                StartCoroutine(ImageDownloader.LoadImage(photoImage, playerData.photo));
+                StartCoroutine(ImageDownloader.LoadImage(_photoImage, playerData.photo));
             }
 
             if (isCurrentPlayer)
             {
-                if (rankText) rankText.fontSize = _defaultRankFontSize * fontSizeMultiplier;
-                if (nameText) nameText.fontSize = _defaultNameFontSize * fontSizeMultiplier;
-                if (scoreText) scoreText.fontSize = _defaultScoreFontSize * fontSizeMultiplier;
+                if (_rankText) _rankText.fontSize = _defaultRankFontSize * fontSizeMultiplier;
+                if (_nameText) _nameText.fontSize = _defaultNameFontSize * fontSizeMultiplier;
+                if (_scoreText) _scoreText.fontSize = _defaultScoreFontSize * fontSizeMultiplier;
             }
             else
             {
-                if (rankText) rankText.fontSize = _defaultRankFontSize;
-                if (nameText) nameText.fontSize = _defaultNameFontSize;
-                if (scoreText) scoreText.fontSize = _defaultScoreFontSize;
+                if (_rankText) _rankText.fontSize = _defaultRankFontSize;
+                if (_nameText) _nameText.fontSize = _defaultNameFontSize;
+                if (_scoreText) _scoreText.fontSize = _defaultScoreFontSize;
             }
         }
 
@@ -74,8 +85,8 @@ namespace View.UI
         /// </summary>
         public void SetAsSeparator()
         {
-            playerInfoContainer.SetActive(false);
-            separatorContainer.SetActive(true);
+            if (_playerInfoContainer != null) _playerInfoContainer.SetActive(false);
+            if (_separatorContainer != null) _separatorContainer.SetActive(true);
         }
     }
 }

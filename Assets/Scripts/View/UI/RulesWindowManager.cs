@@ -8,32 +8,49 @@ namespace View.UI
     /// </summary>
     public class RulesWindowManager : MonoBehaviour
     {
-        [SerializeField] private GameObject rulesWindow;
-        [SerializeField] private RulesGrid rulesGrid;
+        private GameObject _rulesWindow;
+        private RulesGrid _rulesGrid;
 
-        [Header("Каналы событий")]
-        [SerializeField] private GameEvents gameEvents;
+        private void Awake()
+        {
+            BindUI();
+        }
+
+        private void BindUI()
+        {
+            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var t in allTransforms)
+            {
+                if (t.name == "Rules" && t.parent != null && t.parent.name == "Canvas") _rulesWindow = t.gameObject;
+            }
+
+            if (_rulesWindow != null)
+            {
+                _rulesGrid = UnityEngine.Object.FindFirstObjectByType<RulesGrid>(FindObjectsInactive.Include);
+                
+                var btnHideRules = _rulesWindow.transform.Find("Obj_RulesWindow/Closed")?.GetComponent<UnityEngine.UI.Button>();
+                btnHideRules?.onClick.AddListener(() => GlobalEvents.OnHideRules?.Invoke());
+            }
+        }
 
         private void OnEnable()
         {
-            if (!gameEvents) return;
-            gameEvents.onShowRules.AddListener(ShowRulesWindow);
-            gameEvents.onHideRules.AddListener(HideRulesWindow);
+            GlobalEvents.OnShowRules += ShowRulesWindow;
+            GlobalEvents.OnHideRules += HideRulesWindow;
         }
 
         private void Start()
         {
-            if (rulesWindow)
+            if (_rulesWindow)
             {
-                rulesWindow.SetActive(false);
+                _rulesWindow.SetActive(false);
             }
         }
 
         private void OnDisable()
         {
-            if (!gameEvents) return;
-            gameEvents.onShowRules.RemoveListener(ShowRulesWindow);
-            gameEvents.onHideRules.RemoveListener(HideRulesWindow);
+            GlobalEvents.OnShowRules -= ShowRulesWindow;
+            GlobalEvents.OnHideRules -= HideRulesWindow;
         }
 
         /// <summary>
@@ -41,15 +58,15 @@ namespace View.UI
         /// </summary>
         private void ShowRulesWindow()
         {
-            if (!rulesWindow) return;
-            rulesWindow.SetActive(true);
-            if (rulesGrid)
+            if (!_rulesWindow) return;
+            _rulesWindow.SetActive(true);
+            if (_rulesGrid)
             {
-                rulesGrid.GenerateGrid();
+                _rulesGrid.GenerateGrid();
             }
             else
             {
-                Debug.LogError("RulesGrid не назначен в инспекторе для RulesWindowManager.");
+                Debug.LogError("RulesGrid не найден в RulesWindowManager.");
             }
         }
 
@@ -58,9 +75,9 @@ namespace View.UI
         /// </summary>
         private void HideRulesWindow()
         {
-            if (rulesWindow)
+            if (_rulesWindow)
             {
-                rulesWindow.SetActive(false);
+                _rulesWindow.SetActive(false);
             }
         }
     }

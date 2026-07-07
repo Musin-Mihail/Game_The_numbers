@@ -15,12 +15,11 @@ namespace View.Grid
     /// </summary>
     public class GridView : MonoBehaviour
     {
-        [Header("Зависимости сцены")]
-        [SerializeField] private CellPool cellPool;
-        [SerializeField] private FloatingScorePool floatingScorePool;
-        [SerializeField] private RectTransform contentContainer;
-        [SerializeField] private ScrollRect scrollRect;
-        [SerializeField] private RectTransform scrollviewContainer;
+        private CellPool _cellPool;
+        private FloatingScorePool _floatingScorePool;
+        private RectTransform _contentContainer;
+        private ScrollRect _scrollRect;
+        private RectTransform _scrollviewContainer;
 
         [Header("Настройки")]
         [SerializeField] private Color positiveScoreColor = Color.green;
@@ -31,7 +30,6 @@ namespace View.Grid
         private readonly Dictionary<Guid, Cell> _cellViewInstances = new();
 
         private GridModel _gridModel;
-        private GameEvents _gameEvents;
         private HeaderNumberDisplay _headerNumberDisplay;
 
         private GridInputHandler _inputHandler;
@@ -46,20 +44,48 @@ namespace View.Grid
         /// <summary>
         /// Инициализация зависимостей, полученных из GameBootstrap.
         /// </summary>
-        public void Initialize(GameEvents gameEvents, GridModel gridModel, HeaderNumberDisplay headerNumberDisplay)
+        public void Initialize(GridModel gridModel, HeaderNumberDisplay headerNumberDisplay)
         {
-            _gameEvents = gameEvents;
             _gridModel = gridModel;
             _headerNumberDisplay = headerNumberDisplay;
         }
 
         private void Awake()
         {
-            _visuals = new GridVisuals(_cellViewInstances, floatingScorePool, positiveScoreColor, negativeScoreColor);
-            _inputHandler = new GridInputHandler(_gameEvents, _visuals);
-            _layoutManager = new GridLayoutManager(contentContainer, scrollRect, scrollviewContainer, _headerNumberDisplay, _gridModel);
+            BindUI();
+            _visuals = new GridVisuals(_cellViewInstances, _floatingScorePool, positiveScoreColor, negativeScoreColor);
+            _inputHandler = new GridInputHandler(_visuals);
+            _layoutManager = new GridLayoutManager(_contentContainer, _scrollRect, _scrollviewContainer, _headerNumberDisplay, _gridModel);
 
             _layoutManager.Initialize();
+        }
+
+        private void BindUI()
+        {
+            _cellPool = UnityEngine.Object.FindFirstObjectByType<CellPool>(FindObjectsInactive.Include);
+            _floatingScorePool = UnityEngine.Object.FindFirstObjectByType<FloatingScorePool>(FindObjectsInactive.Include);
+            
+            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var t in allTransforms)
+            {
+                if (t.name == "ScrollView" && t.GetComponent<ScrollRect>() != null)
+                {
+                    _scrollRect = t.GetComponent<ScrollRect>();
+                    break;
+                }
+            }
+
+            if (_scrollRect != null)
+            {
+                // Назначаем сам ScrollView в качестве контейнера, чтобы отступ (Padding) 
+                // сдвигал всё игровое поле вниз и освобождал место для верхней строки
+                _scrollviewContainer = _scrollRect.GetComponent<RectTransform>();
+                _contentContainer = _scrollRect.content;
+            }
+            else
+            {
+                Debug.LogError("[GridView] Компонент ScrollRect с именем 'ScrollView' не найден!");
+            }
         }
 
         private void OnEnable()
@@ -79,51 +105,48 @@ namespace View.Grid
 
         private void SubscribeToEvents()
         {
-            if (!_gameEvents) return;
-            _gameEvents.onNewGameStarted.AddListener(FullRedraw);
-            _gameEvents.onCellAdded.AddListener(HandleGridChanged);
-            _gameEvents.onCellUpdated.AddListener(HandleCellUpdated);
-            _gameEvents.onCellRemoved.AddListener(HandleGridChanged);
-            _gameEvents.onGridCleared.AddListener(HandleGridCleared);
-            _gameEvents.onMatchFound.AddListener(HandleMatchFound);
-            _gameEvents.onInvalidMatch.AddListener(HandleInvalidMatch);
-            _gameEvents.onToggleTopLine.AddListener(HandleToggleTopLine);
-            _gameEvents.onHintFound.AddListener(HandleHintFound);
-            _gameEvents.onIdleHintFound.AddListener(HandleIdleHintFound);
-            _gameEvents.onPairScoreAdded.AddListener(HandlePairScoreAdded);
-            _gameEvents.onLineScoreAdded.AddListener(HandleLineScoreAdded);
-            _gameEvents.onPairScoreUndone.AddListener(HandlePairScoreUndone);
-            _gameEvents.onLineScoreUndone.AddListener(HandleLineScoreUndone);
-            _gameEvents.onBoardCleared.AddListener(HandleBoardCleared);
-            _gameEvents.onLinesRemoved.AddListener(HandleGridChanged);
-            _gameEvents.onSetAllowedInputCells.AddListener(HandleSetAllowedCells);
+            GlobalEvents.OnNewGameStarted += FullRedraw;
+            GlobalEvents.OnCellAdded += HandleGridChanged;
+            GlobalEvents.OnCellUpdated += HandleCellUpdated;
+            GlobalEvents.OnCellRemoved += HandleGridChanged;
+            GlobalEvents.OnGridCleared += HandleGridCleared;
+            GlobalEvents.OnMatchFound += HandleMatchFound;
+            GlobalEvents.OnInvalidMatch += HandleInvalidMatch;
+            GlobalEvents.OnToggleTopLine += HandleToggleTopLine;
+            GlobalEvents.OnHintFound += HandleHintFound;
+            GlobalEvents.OnIdleHintFound += HandleIdleHintFound;
+            GlobalEvents.OnPairScoreAdded += HandlePairScoreAdded;
+            GlobalEvents.OnLineScoreAdded += HandleLineScoreAdded;
+            GlobalEvents.OnPairScoreUndone += HandlePairScoreUndone;
+            GlobalEvents.OnLineScoreUndone += HandleLineScoreUndone;
+            GlobalEvents.OnBoardCleared += HandleBoardCleared;
+            GlobalEvents.OnLinesRemoved += HandleGridChanged;
+            GlobalEvents.OnSetAllowedInputCells += HandleSetAllowedCells;
 
-            scrollRect.onValueChanged.AddListener(OnScrollPositionChanged);
+            if (_scrollRect != null) _scrollRect.onValueChanged.AddListener(OnScrollPositionChanged);
         }
 
         private void UnsubscribeFromEvents()
         {
-            if (!_gameEvents) return;
+            GlobalEvents.OnNewGameStarted -= FullRedraw;
+            GlobalEvents.OnCellAdded -= HandleGridChanged;
+            GlobalEvents.OnCellUpdated -= HandleCellUpdated;
+            GlobalEvents.OnCellRemoved -= HandleGridChanged;
+            GlobalEvents.OnGridCleared -= HandleGridCleared;
+            GlobalEvents.OnMatchFound -= HandleMatchFound;
+            GlobalEvents.OnInvalidMatch -= HandleInvalidMatch;
+            GlobalEvents.OnToggleTopLine -= HandleToggleTopLine;
+            GlobalEvents.OnHintFound -= HandleHintFound;
+            GlobalEvents.OnIdleHintFound -= HandleIdleHintFound;
+            GlobalEvents.OnPairScoreAdded -= HandlePairScoreAdded;
+            GlobalEvents.OnLineScoreAdded -= HandleLineScoreAdded;
+            GlobalEvents.OnPairScoreUndone -= HandlePairScoreUndone;
+            GlobalEvents.OnLineScoreUndone -= HandleLineScoreUndone;
+            GlobalEvents.OnBoardCleared -= HandleBoardCleared;
+            GlobalEvents.OnLinesRemoved -= HandleGridChanged;
+            GlobalEvents.OnSetAllowedInputCells -= HandleSetAllowedCells;
 
-            _gameEvents.onNewGameStarted.RemoveListener(FullRedraw);
-            _gameEvents.onCellAdded.RemoveListener(HandleGridChanged);
-            _gameEvents.onCellUpdated.RemoveListener(HandleCellUpdated);
-            _gameEvents.onCellRemoved.RemoveListener(HandleGridChanged);
-            _gameEvents.onGridCleared.RemoveListener(HandleGridCleared);
-            _gameEvents.onMatchFound.RemoveListener(HandleMatchFound);
-            _gameEvents.onInvalidMatch.RemoveListener(HandleInvalidMatch);
-            _gameEvents.onToggleTopLine.RemoveListener(HandleToggleTopLine);
-            _gameEvents.onHintFound.RemoveListener(HandleHintFound);
-            _gameEvents.onIdleHintFound.RemoveListener(HandleIdleHintFound);
-            _gameEvents.onPairScoreAdded.RemoveListener(HandlePairScoreAdded);
-            _gameEvents.onLineScoreAdded.RemoveListener(HandleLineScoreAdded);
-            _gameEvents.onPairScoreUndone.RemoveListener(HandlePairScoreUndone);
-            _gameEvents.onLineScoreUndone.RemoveListener(HandleLineScoreUndone);
-            _gameEvents.onBoardCleared.RemoveListener(HandleBoardCleared);
-            _gameEvents.onLinesRemoved.RemoveListener(HandleGridChanged);
-            _gameEvents.onSetAllowedInputCells.RemoveListener(HandleSetAllowedCells);
-
-            scrollRect.onValueChanged.RemoveListener(OnScrollPositionChanged);
+            if (_scrollRect != null) _scrollRect.onValueChanged.RemoveListener(OnScrollPositionChanged);
         }
 
         private void HandleSetAllowedCells(List<Guid> allowed)
@@ -142,7 +165,7 @@ namespace View.Grid
         /// </summary>
         private void UpdateVisibleCells()
         {
-            if (_gridModel == null || !scrollRect) return;
+            if (_gridModel == null || !_scrollRect) return;
             // 1. Рассчитать диапазон видимых линий
             var (firstVisibleLine, lastVisibleLine) = _layoutManager.GetVisibleLineRange(lineBuffer);
             // 2. Определить, какие ячейки должны быть видимы
@@ -163,7 +186,7 @@ namespace View.Grid
                 if (!_cellViewInstances.TryGetValue(cellId, out var cellView)) continue;
                 // Перед удалением сбрасываем состояние, чтобы не было "глюков" при переиспользовании
                 _visuals.ClearCellVisuals(cellView);
-                cellPool.ReturnCell(cellView);
+                _cellPool.ReturnCell(cellView);
                 _cellViewInstances.Remove(cellId);
             }
 
@@ -174,7 +197,7 @@ namespace View.Grid
                 foreach (var cellData in _gridModel.Cells[i])
                 {
                     if (_cellViewInstances.ContainsKey(cellData.Id)) continue;
-                    var newCellView = cellPool.GetCell();
+                    var newCellView = _cellPool.GetCell();
                     newCellView.UpdateFromData(cellData);
                     newCellView.OnClickedCallback = _inputHandler.HandleCellClicked;
                     // Применяем сохраненные состояния (выделение, подсказка)
@@ -203,7 +226,8 @@ namespace View.Grid
             _layoutManager.RefreshTopLine();
         }
 
-        private void HandleGridChanged<T>(T payload) => HandleGridChanged();
+        private void HandleGridChanged((CellData cell, bool animate) payload) => HandleGridChanged();
+        private void HandleGridChanged(Guid payload) => HandleGridChanged();
 
         private void HandleGridChanged()
         {
@@ -225,7 +249,7 @@ namespace View.Grid
 
             foreach (var cell in _cellViewInstances.Values)
             {
-                cellPool.ReturnCell(cell);
+                _cellPool.ReturnCell(cell);
             }
 
             _cellViewInstances.Clear();
@@ -234,7 +258,7 @@ namespace View.Grid
 
         private void HandleBoardCleared()
         {
-            _visuals.ShowBoardClearedMessage(scrollRect.viewport);
+            if (_scrollRect != null) _visuals.ShowBoardClearedMessage(_scrollRect.viewport);
         }
 
         private void HandleHintFound((Guid firstId, Guid secondId) data)

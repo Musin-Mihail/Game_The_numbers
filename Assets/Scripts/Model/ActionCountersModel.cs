@@ -24,15 +24,12 @@ namespace Model
         /// </summary>
         public bool AreCountersDisabled { get; private set; }
         private const int InitialCount = GameConstants.InitialActionsCount;
-        private readonly GameEvents _gameEvents;
 
         /// <summary>
         /// Инициализирует модель счетчиков и сбрасывает их к начальным значениям.
         /// </summary>
-        /// <param name="gameEvents">Контейнер игровых событий для уведомлений.</param>
-        public ActionCountersModel(GameEvents gameEvents)
+        public ActionCountersModel()
         {
-            _gameEvents = gameEvents;
             ResetCounters();
         }
 
@@ -135,7 +132,7 @@ namespace Model
         /// </summary>
         private void RaiseCountersChanged()
         {
-            _gameEvents?.onCountersChanged.Raise(AreCountersDisabled
+            GlobalEvents.OnCountersChanged?.Invoke(AreCountersDisabled
                 ? (-1, -1)
                 : (UndoCount, HintCount));
         }

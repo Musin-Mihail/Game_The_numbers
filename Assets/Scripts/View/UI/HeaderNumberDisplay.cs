@@ -12,29 +12,40 @@ namespace View.UI
     /// </summary>
     public class HeaderNumberDisplay : MonoBehaviour
     {
-        [Header("Зависимости сцены")]
-        [SerializeField] private GameObject cellPrefab;
-        [SerializeField] private RectTransform container;
-
-        [Header("Каналы событий")]
-        [SerializeField] private GameEvents gameEvents;
+        private GameObject _cellPrefab;
+        private RectTransform _container;
 
         private readonly List<Cell> _topLineCells = new();
 
+        private void Awake()
+        {
+            _cellPrefab = Resources.Load<GameObject>("Prefabs/Prefab_Cell");
+            BindUI();
+        }
+
+        private void BindUI()
+        {
+            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var t in allTransforms)
+            {
+                if (t.name == "Container" && t.parent != null && t.parent.name == "GameSpace")
+                {
+                    _container = t.GetComponent<RectTransform>();
+                    break;
+                }
+            }
+        }
 
         private void OnEnable()
         {
-            if (gameEvents)
-            {
-                gameEvents.onToggleTopLine.AddListener(SetContainerActive);
-            }
+            GlobalEvents.OnToggleTopLine += SetContainerActive;
         }
 
         private void Start()
         {
-            if (!cellPrefab)
+            if (!_cellPrefab)
             {
-                Debug.LogError("Ошибка: 'cellPrefab' не назначен в инспекторе!", this);
+                Debug.LogError("Ошибка: 'Prefab_Cell' не найден в Resources/Prefabs!", this);
                 enabled = false;
                 return;
             }
@@ -44,31 +55,28 @@ namespace View.UI
 
         private void OnDisable()
         {
-            if (gameEvents)
-            {
-                gameEvents.onToggleTopLine.RemoveListener(SetContainerActive);
-            }
+            GlobalEvents.OnToggleTopLine -= SetContainerActive;
         }
 
         private void SetContainerActive(bool isActive)
         {
-            if (container)
+            if (_container)
             {
-                container.gameObject.SetActive(isActive);
+                _container.gameObject.SetActive(isActive);
             }
         }
 
         private void CreateLineDisplay()
         {
-            if (!cellPrefab)
+            if (!_cellPrefab)
             {
-                Debug.LogError("Ошибка: 'cellPrefab' не назначен в инспекторе для HeaderNumberDisplay!", this);
+                Debug.LogError("Ошибка: '_cellPrefab' не загружен в HeaderNumberDisplay!", this);
                 return;
             }
 
             for (var i = 0; i < GameConstants.QuantityByWidth; i++)
             {
-                var cellGo = Instantiate(cellPrefab, container);
+                var cellGo = Instantiate(_cellPrefab, _container, false);
                 var cell = cellGo.GetComponent<Cell>();
 
                 cell.SetSelected(false);

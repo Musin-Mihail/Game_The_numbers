@@ -10,41 +10,62 @@ namespace View.UI
     /// </summary>
     public class OptionsWindowManager : MonoBehaviour
     {
-        [Tooltip("Объект окна настроек, который будет показан/скрыт")]
-        [SerializeField] private GameObject optionsWindow;
-        [SerializeField] private Toggle topLineToggle;
+        private GameObject _optionsWindow;
+        private Toggle _topLineToggle;
 
-        [Header("Каналы событий")]
-        [SerializeField] private GameEvents gameEvents;
+        private void Awake()
+        {
+            BindUI();
+        }
+
+        private void BindUI()
+        {
+            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var t in allTransforms)
+            {
+                if (t.name == "Options" && t.parent != null && t.parent.name == "Canvas") _optionsWindow = t.gameObject;
+                else if (t.name == "Toggle_TopLine") _topLineToggle = t.GetComponent<Toggle>();
+            }
+
+            if (_optionsWindow != null)
+            {
+                var btnHideOptions = _optionsWindow.transform.Find("Obj_OptionsWindow/Closed")?.GetComponent<Button>();
+                btnHideOptions?.onClick.AddListener(() => GlobalEvents.OnHideOptions?.Invoke());
+
+                var btnNewGame = _optionsWindow.transform.Find("Obj_OptionsWindow/NewGame")?.GetComponent<Button>();
+                btnNewGame?.onClick.AddListener(() => GlobalEvents.OnRequestNewGame?.Invoke());
+
+                var btnHardReset = _optionsWindow.transform.Find("Obj_OptionsWindow/HardReset")?.GetComponent<Button>();
+                btnHardReset?.onClick.AddListener(() => GlobalEvents.OnRequestHardReset?.Invoke());
+            }
+        }
 
         private void OnEnable()
         {
-            if (!gameEvents) return;
-            gameEvents.onShowOptions.AddListener(ShowOptionsWindow);
-            gameEvents.onHideOptions.AddListener(HideOptionsWindow);
+            GlobalEvents.OnShowOptions += ShowOptionsWindow;
+            GlobalEvents.OnHideOptions += HideOptionsWindow;
 
-            if (!topLineToggle) return;
-            topLineToggle.isOn = YG2.saves.isTopLineVisible;
-            topLineToggle.onValueChanged.AddListener(OnToggleValueChanged);
+            if (!_topLineToggle) return;
+            _topLineToggle.isOn = YG2.saves.isTopLineVisible;
+            _topLineToggle.onValueChanged.AddListener(OnToggleValueChanged);
         }
 
         private void Start()
         {
-            if (optionsWindow)
+            if (_optionsWindow)
             {
-                optionsWindow.SetActive(false);
+                _optionsWindow.SetActive(false);
             }
         }
 
         private void OnDisable()
         {
-            if (!gameEvents) return;
-            gameEvents.onShowOptions.RemoveListener(ShowOptionsWindow);
-            gameEvents.onHideOptions.RemoveListener(HideOptionsWindow);
+            GlobalEvents.OnShowOptions -= ShowOptionsWindow;
+            GlobalEvents.OnHideOptions -= HideOptionsWindow;
 
-            if (topLineToggle)
+            if (_topLineToggle)
             {
-                topLineToggle.onValueChanged.RemoveListener(OnToggleValueChanged);
+                _topLineToggle.onValueChanged.RemoveListener(OnToggleValueChanged);
             }
         }
 
@@ -54,7 +75,7 @@ namespace View.UI
         /// <param name="isOn">Новое состояние.</param>
         private void OnToggleValueChanged(bool isOn)
         {
-            gameEvents.onToggleTopLine.Raise(isOn);
+            GlobalEvents.OnToggleTopLine?.Invoke(isOn);
         }
 
         /// <summary>
@@ -62,9 +83,9 @@ namespace View.UI
         /// </summary>
         private void ShowOptionsWindow()
         {
-            if (optionsWindow)
+            if (_optionsWindow)
             {
-                optionsWindow.SetActive(true);
+                _optionsWindow.SetActive(true);
             }
         }
 
@@ -73,9 +94,9 @@ namespace View.UI
         /// </summary>
         private void HideOptionsWindow()
         {
-            if (optionsWindow)
+            if (_optionsWindow)
             {
-                optionsWindow.SetActive(false);
+                _optionsWindow.SetActive(false);
             }
         }
     }

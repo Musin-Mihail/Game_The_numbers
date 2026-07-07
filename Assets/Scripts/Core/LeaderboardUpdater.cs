@@ -12,15 +12,13 @@ namespace Core
     public class LeaderboardUpdater : MonoBehaviour
     {
         private ILeaderboardService _leaderboardService;
-        private GameEvents _gameEvents;
 
         /// <summary>
         /// Инициализация зависимостей, полученных из GameBootstrap.
         /// </summary>
-        public void Initialize(ILeaderboardService leaderboardService, GameEvents gameEvents)
+        public void Initialize(ILeaderboardService leaderboardService)
         {
             _leaderboardService = leaderboardService;
-            _gameEvents = gameEvents;
         }
 
         /// <summary>
@@ -28,10 +26,7 @@ namespace Core
         /// </summary>
         private void OnEnable()
         {
-            if (_gameEvents)
-            {
-                _gameEvents.onStatisticsChanged.AddListener(OnStatisticsChanged);
-            }
+            GlobalEvents.OnStatisticsChanged += OnStatisticsChanged;
         }
 
         /// <summary>
@@ -39,10 +34,7 @@ namespace Core
         /// </summary>
         private void OnDisable()
         {
-            if (_gameEvents)
-            {
-                _gameEvents.onStatisticsChanged.RemoveListener(OnStatisticsChanged);
-            }
+            GlobalEvents.OnStatisticsChanged -= OnStatisticsChanged;
         }
 
         /// <summary>
@@ -55,7 +47,7 @@ namespace Core
             YG2.saves.record = statsData.score;
             _leaderboardService?.UpdateLeaderboard((int)statsData.score);
             Debug.Log($"Новый рекорд установлен: {YG2.saves.record}");
-            _gameEvents.onStatisticsChanged.Raise(statsData);
+            GlobalEvents.OnStatisticsChanged?.Invoke(statsData);
         }
     }
 }

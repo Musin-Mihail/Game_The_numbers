@@ -18,7 +18,6 @@ namespace Core.Platform
         private readonly GridModel _gridModel;
         private readonly StatisticsModel _statisticsModel;
         private readonly ActionCountersModel _actionCountersModel;
-        private readonly GameEvents _gameEvents;
 
         private bool _isLoading;
         private bool _isSaving;
@@ -26,12 +25,11 @@ namespace Core.Platform
         /// <summary>
         /// Инициализирует сервис сохранения/загрузки с необходимыми моделями.
         /// </summary>
-        public YandexSaveLoadService(GridModel gridModel, StatisticsModel statisticsModel, ActionCountersModel actionCountersModel, GameEvents gameEvents)
+        public YandexSaveLoadService(GridModel gridModel, StatisticsModel statisticsModel, ActionCountersModel actionCountersModel)
         {
             _gridModel = gridModel;
             _statisticsModel = statisticsModel;
             _actionCountersModel = actionCountersModel;
-            _gameEvents = gameEvents;
         }
 
         /// <summary>
@@ -145,11 +143,9 @@ namespace Core.Platform
             _gridModel.RestoreState(savedCells);
             _statisticsModel.SetState(YG2.saves.statistics.score, YG2.saves.statistics.multiplier);
             _actionCountersModel.RestoreState(YG2.saves.actionCounters);
-            if (_gameEvents)
-            {
-                _gameEvents.onToggleTopLine?.Raise(YG2.saves.isTopLineVisible);
-                _gameEvents.onStatisticsChanged?.Raise((YG2.saves.statistics.score, YG2.saves.statistics.multiplier));
-            }
+            
+            GlobalEvents.OnToggleTopLine?.Invoke(YG2.saves.isTopLineVisible);
+            GlobalEvents.OnStatisticsChanged?.Invoke((YG2.saves.statistics.score, YG2.saves.statistics.multiplier));
 
             Debug.Log("Игровые данные успешно загружены из сохранений Yandex.");
             _isLoading = false;

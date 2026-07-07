@@ -10,16 +10,22 @@ namespace View.UI
     /// </summary>
     public class FloatingScore : MonoBehaviour
     {
-        [SerializeField] private TextMeshProUGUI scoreText;
         [SerializeField] private float fadeOutTime = 0.5f;
         [SerializeField] private float lifeTime = 1f;
 
+        private TextMeshProUGUI _scoreText;
         private RectTransform _rectTransform;
         private Action<FloatingScore> _onComplete;
 
         private void Awake()
         {
             _rectTransform = GetComponent<RectTransform>();
+            BindUI();
+        }
+
+        private void BindUI()
+        {
+            _scoreText = transform.Find("Txt_ScoreText")?.GetComponent<TextMeshProUGUI>();
         }
 
         /// <summary>
@@ -33,8 +39,11 @@ namespace View.UI
         public void Show(string text, Color color, Vector2 centerPosition, Vector2 size, Action<FloatingScore> onComplete)
         {
             _onComplete = onComplete;
-            scoreText.text = text;
-            scoreText.color = color;
+            if (_scoreText != null)
+            {
+                _scoreText.text = text;
+                _scoreText.color = color;
+            }
             _rectTransform.sizeDelta = size;
             _rectTransform.anchoredPosition = centerPosition;
 
@@ -45,21 +54,21 @@ namespace View.UI
         private IEnumerator Animate()
         {
             var elapsedTime = 0f;
-            var startColor = scoreText.color;
+            var startColor = _scoreText != null ? _scoreText.color : Color.white;
 
             while (elapsedTime < lifeTime)
             {
                 if (elapsedTime > lifeTime - fadeOutTime)
                 {
                     var alpha = Mathf.Lerp(1f, 0f, (elapsedTime - (lifeTime - fadeOutTime)) / fadeOutTime);
-                    scoreText.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
+                    if (_scoreText != null) _scoreText.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
                 }
 
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
 
-            scoreText.color = startColor;
+            if (_scoreText != null) _scoreText.color = startColor;
             _onComplete?.Invoke(this);
         }
     }

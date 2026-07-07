@@ -12,7 +12,6 @@ namespace Core
     /// </summary>
     public class GameManager : MonoBehaviour
     {
-        private GameEvents _gameEvents;
         private ISaveLoadService _saveLoadService;
         private Core.Handlers.IdleHintHandler _idleHintHandler;
 
@@ -27,7 +26,6 @@ namespace Core
         public void Initialize(ISaveLoadService saveLoadService)
         {
             _saveLoadService = saveLoadService;
-            _gameEvents = ServiceProvider.GetService<GameEvents>();
             _idleHintHandler = ServiceProvider.GetService<Core.Handlers.IdleHintHandler>();
             SubscribeToEvents();
         }
@@ -63,9 +61,8 @@ namespace Core
         /// </summary>
         private void SubscribeToEvents()
         {
-            if (!_gameEvents) return;
-            _gameEvents.onToggleTopLine.AddListener(SetTopLineVisibilityAndSave);
-            _gameEvents.onRequestMarkUpdateSeen.AddListener(HandleMarkUpdateSeen);
+            GlobalEvents.OnToggleTopLine += SetTopLineVisibilityAndSave;
+            GlobalEvents.OnRequestMarkUpdateSeen += HandleMarkUpdateSeen;
         }
 
         /// <summary>
@@ -73,10 +70,8 @@ namespace Core
         /// </summary>
         private void UnsubscribeFromEvents()
         {
-            if (!_gameEvents) return;
-            _gameEvents.onToggleTopLine.RemoveListener(SetTopLineVisibilityAndSave);
-
-            _gameEvents.onRequestMarkUpdateSeen.RemoveListener(HandleMarkUpdateSeen);
+            GlobalEvents.OnToggleTopLine -= SetTopLineVisibilityAndSave;
+            GlobalEvents.OnRequestMarkUpdateSeen -= HandleMarkUpdateSeen;
         }
 
         /// <summary>
@@ -88,7 +83,7 @@ namespace Core
             if (YG2.saves.seenUpdateVersions.Contains(GameConstants.GameVersion)) return;
             Debug.Log($"Игрок посмотрел обновление {GameConstants.GameVersion}.");
             YG2.saves.seenUpdateVersions.Add(GameConstants.GameVersion);
-            _gameEvents.onUpdateSeen.Raise();
+            GlobalEvents.OnUpdateSeen?.Invoke();
             RequestSave();
         }
 

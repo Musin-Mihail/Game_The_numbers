@@ -23,14 +23,11 @@ namespace Model
         private readonly List<CellData> _activeCellsCache = new();
         private bool _isCacheDirty = true;
 
-        private readonly GameEvents _gameEvents;
-
         /// <summary>
-        /// Инициализирует новую модель сетки, получая зависимости через ServiceProvider.
+        /// Инициализирует новую модель сетки.
         /// </summary>
         public GridModel()
         {
-            _gameEvents = ServiceProvider.GetService<GameEvents>();
         }
 
         /// <summary>
@@ -142,7 +139,7 @@ namespace Model
             if (data.IsActive == isActive) return;
             data.SetActive(isActive);
             _isCacheDirty = true;
-            _gameEvents?.onCellUpdated.Raise(data);
+            GlobalEvents.OnCellUpdated?.Invoke(data);
         }
 
         /// <summary>
@@ -153,7 +150,7 @@ namespace Model
             _cells.Clear();
             _cellDataMap.Clear();
             _isCacheDirty = true;
-            _gameEvents?.onGridCleared.Raise();
+            GlobalEvents.OnGridCleared?.Invoke();
         }
 
         /// <summary>
@@ -168,7 +165,7 @@ namespace Model
                 var cellData = new CellData(Random.Range(1, 10), lineIndex, i);
                 newLine.Add(cellData);
                 _cellDataMap[cellData.Id] = cellData;
-                _gameEvents?.onCellAdded.Raise((cellData, true));
+                GlobalEvents.OnCellAdded?.Invoke((cellData, true));
             }
 
             _cells.Add(newLine);
@@ -195,7 +192,7 @@ namespace Model
                 var cellData = new CellData(number, lineIndex, i);
                 newLine.Add(cellData);
                 _cellDataMap[cellData.Id] = cellData;
-                _gameEvents?.onCellAdded.Raise((cellData, true));
+                GlobalEvents.OnCellAdded?.Invoke((cellData, true));
             }
 
             _cells.Add(newLine);
@@ -220,7 +217,7 @@ namespace Model
             foreach (var cellData in _cells[lineIndex])
             {
                 _cellDataMap.Remove(cellData.Id);
-                _gameEvents?.onCellRemoved.Raise(cellData.Id);
+                GlobalEvents.OnCellRemoved?.Invoke(cellData.Id);
             }
 
             _cells.RemoveAt(lineIndex);
@@ -229,7 +226,7 @@ namespace Model
                 foreach (var cell in _cells[i])
                 {
                     cell.Line = i;
-                    _gameEvents?.onCellUpdated.Raise(cell);
+                    GlobalEvents.OnCellUpdated?.Invoke(cell);
                 }
             }
 
@@ -248,7 +245,7 @@ namespace Model
                 foreach (var cell in _cells[i])
                 {
                     cell.Line++;
-                    _gameEvents?.onCellUpdated.Raise(cell);
+                    GlobalEvents.OnCellUpdated?.Invoke(cell);
                 }
             }
 
@@ -256,7 +253,7 @@ namespace Model
             foreach (var cellData in lineData)
             {
                 _cellDataMap[cellData.Id] = cellData;
-                _gameEvents?.onCellAdded.Raise((cellData, true));
+                GlobalEvents.OnCellAdded?.Invoke((cellData, true));
             }
 
             _isCacheDirty = true;
@@ -315,7 +312,7 @@ namespace Model
                         }
 
                         _cellDataMap.Remove(cell.Id);
-                        _gameEvents?.onCellRemoved.Raise(cell.Id);
+                        GlobalEvents.OnCellRemoved?.Invoke(cell.Id);
                         line.RemoveAt(c);
                     }
 
@@ -366,7 +363,7 @@ namespace Model
                 var newCellData = new CellData(number, lineIndex, columnIndex);
                 _cells[lineIndex].Add(newCellData);
                 _cellDataMap[newCellData.Id] = newCellData;
-                _gameEvents.onCellAdded.Raise((newCellData, false));
+                GlobalEvents.OnCellAdded?.Invoke((newCellData, false));
                 columnIndex++;
             }
 

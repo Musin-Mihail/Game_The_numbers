@@ -13,7 +13,6 @@ namespace Core.Handlers
     /// </summary>
     public class TutorialHandler : IDisposable
     {
-        private readonly GameEvents _gameEvents;
         private readonly GridModel _gridModel;
         private readonly ISaveLoadService _saveLoadService;
 
@@ -21,14 +20,13 @@ namespace Core.Handlers
         private CellData _targetCell1;
         private CellData _targetCell2;
 
-        public TutorialHandler(GameEvents gameEvents, GridModel gridModel, ISaveLoadService saveLoadService)
+        public TutorialHandler(GridModel gridModel, ISaveLoadService saveLoadService)
         {
-            _gameEvents = gameEvents;
             _gridModel = gridModel;
             _saveLoadService = saveLoadService;
 
-            _gameEvents.onTutorialStarted.AddListener(StartTutorial);
-            _gameEvents.onMatchFound.AddListener(OnMatchFound);
+            GlobalEvents.OnTutorialStarted += StartTutorial;
+            GlobalEvents.OnMatchFound += OnMatchFound;
         }
 
         private void StartTutorial()
@@ -52,7 +50,7 @@ namespace Core.Handlers
             }
 
             _gridModel.RestoreState(savedCells);
-            _gameEvents.onNewGameStarted.Raise();
+            GlobalEvents.OnNewGameStarted?.Invoke();
 
             SetStep(0);
         }
@@ -78,8 +76,8 @@ namespace Core.Handlers
             }
 
             var allowed = new List<Guid> { _targetCell1.Id, _targetCell2.Id };
-            _gameEvents.onSetAllowedInputCells.Raise(allowed);
-            _gameEvents.onHintFound.Raise((_targetCell1.Id, _targetCell2.Id));
+            GlobalEvents.OnSetAllowedInputCells?.Invoke(allowed);
+            GlobalEvents.OnHintFound?.Invoke((_targetCell1.Id, _targetCell2.Id));
         }
 
         private void OnMatchFound((Guid firstCellId, Guid secondCellId) data)
@@ -95,15 +93,15 @@ namespace Core.Handlers
                 _currentStep = -1;
                 YG2.saves.isTutorialCompleted = true;
                 _saveLoadService.RequestSave();
-                _gameEvents.onSetAllowedInputCells.Raise(null);
-                _gameEvents.onTutorialCompleted.Raise();
+                GlobalEvents.OnSetAllowedInputCells?.Invoke(null);
+                GlobalEvents.OnTutorialCompleted?.Invoke();
             }
         }
 
         public void Dispose()
         {
-            _gameEvents.onTutorialStarted.RemoveListener(StartTutorial);
-            _gameEvents.onMatchFound.RemoveListener(OnMatchFound);
+            GlobalEvents.OnTutorialStarted -= StartTutorial;
+            GlobalEvents.OnMatchFound -= OnMatchFound;
         }
     }
 }

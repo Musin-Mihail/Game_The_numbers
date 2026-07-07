@@ -18,7 +18,6 @@ namespace Core.Handlers
         private readonly MatchValidator _matchValidator;
         private readonly StatisticsModel _statisticsModel;
         private readonly ActionHistory _actionHistory;
-        private readonly GameEvents _gameEvents;
         private readonly GameManager _gameManager;
 
         /// <summary>
@@ -29,17 +28,15 @@ namespace Core.Handlers
             MatchValidator matchValidator,
             StatisticsModel statisticsModel,
             ActionHistory actionHistory,
-            GameEvents gameEvents,
             GameManager gameManager)
         {
             _gridModel = gridModel;
             _matchValidator = matchValidator;
             _statisticsModel = statisticsModel;
             _actionHistory = actionHistory;
-            _gameEvents = gameEvents;
             _gameManager = gameManager;
 
-            _gameEvents.onAttemptMatch.AddListener(AttemptMatch);
+            GlobalEvents.OnAttemptMatch += AttemptMatch;
         }
 
         /// <summary>
@@ -47,7 +44,7 @@ namespace Core.Handlers
         /// </summary>
         public void Dispose()
         {
-            _gameEvents.onAttemptMatch.RemoveListener(AttemptMatch);
+            GlobalEvents.OnAttemptMatch -= AttemptMatch;
         }
 
         /// <summary>
@@ -64,7 +61,7 @@ namespace Core.Handlers
             }
             else
             {
-                _gameEvents.onInvalidMatch.Raise();
+                GlobalEvents.OnInvalidMatch?.Invoke();
             }
         }
 
@@ -78,27 +75,27 @@ namespace Core.Handlers
             var scoreBeforeAction = _statisticsModel.Score;
             var multiplierBeforeAction = _statisticsModel.Multiplier;
 
-            _gameEvents.onMatchFound.Raise((data1.Id, data2.Id));
+            GlobalEvents.OnMatchFound?.Invoke((data1.Id, data2.Id));
 
             _gridModel.SetCellActiveState(data1, false);
             _gridModel.SetCellActiveState(data2, false);
 
             var pairScore = 1 * _statisticsModel.Multiplier;
             _statisticsModel.AddScore(pairScore);
-            _gameEvents.onPairScoreAdded.Raise((data1.Id, data2.Id, pairScore));
+            GlobalEvents.OnPairScoreAdded?.Invoke((data1.Id, data2.Id, pairScore));
 
             CheckAndRemoveEmptyLines(data1.Line, data2.Line, removedLinesInfo, lineScores);
 
             if (_gridModel.GetAllActiveCellData().Count == 0)
             {
                 _statisticsModel.IncrementMultiplier();
-                _gameEvents.onBoardCleared.Raise();
+                GlobalEvents.OnBoardCleared?.Invoke();
             }
 
-            var action = new MatchAction(data1.Id, data2.Id, removedLinesInfo, scoreBeforeAction, multiplierBeforeAction, pairScore, lineScores, _gridModel, _statisticsModel, _gameEvents);
+            var action = new MatchAction(data1.Id, data2.Id, removedLinesInfo, scoreBeforeAction, multiplierBeforeAction, pairScore, lineScores, _gridModel, _statisticsModel);
             _actionHistory.Record(action);
 
-            _gameEvents.onStatisticsChanged.Raise((_statisticsModel.Score, _statisticsModel.Multiplier));
+            GlobalEvents.OnStatisticsChanged?.Invoke((_statisticsModel.Score, _statisticsModel.Multiplier));
             _gameManager?.RequestSave();
         }
 
@@ -122,10 +119,10 @@ namespace Core.Handlers
                 var scoreForLine = 10 * _statisticsModel.Multiplier;
                 _statisticsModel.AddScore(scoreForLine);
                 lineScores[lineIndex] = scoreForLine;
-                _gameEvents.onLineScoreAdded.Raise((lineIndex, scoreForLine));
+                GlobalEvents.OnLineScoreAdded?.Invoke((lineIndex, scoreForLine));
             }
 
-            _gameEvents.onLinesRemoved.Raise();
+            GlobalEvents.OnLinesRemoved?.Invoke();
         }
     }
 }

@@ -22,12 +22,11 @@ namespace Core.UndoSystem
 
         private readonly GridModel _gridModel;
         private readonly StatisticsModel _statisticsModel;
-        private readonly GameEvents _gameEvents;
 
         /// <summary>
         /// Инициализирует новое отменяемое действие совпадения пары.
         /// </summary>
-        public MatchAction(Guid cell1Id, Guid cell2Id, List<Tuple<int, List<CellData>>> removedLines, long scoreBefore, int multiplierBefore, int pairScore, Dictionary<int, int> lineScores, GridModel gridModel, StatisticsModel statisticsModel, GameEvents gameEvents)
+        public MatchAction(Guid cell1Id, Guid cell2Id, List<Tuple<int, List<CellData>>> removedLines, long scoreBefore, int multiplierBefore, int pairScore, Dictionary<int, int> lineScores, GridModel gridModel, StatisticsModel statisticsModel)
         {
             _cell1Id = cell1Id;
             _cell2Id = cell2Id;
@@ -39,7 +38,6 @@ namespace Core.UndoSystem
 
             _gridModel = gridModel;
             _statisticsModel = statisticsModel;
-            _gameEvents = gameEvents;
         }
 
         /// <summary>
@@ -56,7 +54,7 @@ namespace Core.UndoSystem
 
                 foreach (var lineScore in _lineScores)
                 {
-                    _gameEvents.onLineScoreUndone.Raise((lineScore.Key, lineScore.Value));
+                    GlobalEvents.OnLineScoreUndone?.Invoke((lineScore.Key, lineScore.Value));
                 }
             }
 
@@ -67,7 +65,7 @@ namespace Core.UndoSystem
 
             if (_pairScore > 0)
             {
-                _gameEvents.onPairScoreUndone.Raise((_cell1Id, _cell2Id, _pairScore));
+                GlobalEvents.OnPairScoreUndone?.Invoke((_cell1Id, _cell2Id, _pairScore));
             }
 
             _statisticsModel.SetState(_scoreBeforeAction, _multiplierBeforeAction);

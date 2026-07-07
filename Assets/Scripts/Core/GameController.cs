@@ -21,7 +21,6 @@ namespace Core
         private readonly ActionHistory _actionHistory;
         private readonly ActionCountersModel _actionCountersModel;
         private readonly StatisticsModel _statisticsModel;
-        private readonly GameEvents _gameEvents;
         private readonly GameManager _gameManager;
         private readonly GridView _gridView;
 
@@ -36,7 +35,6 @@ namespace Core
         public GameController(
             GridModel gridModel,
             MatchValidator matchValidator,
-            GameEvents gameEvents,
             ActionHistory actionHistory,
             ActionCountersModel actionCountersModel,
             StatisticsModel statisticsModel,
@@ -45,20 +43,19 @@ namespace Core
             IPlatformServices platformServices)
         {
             _gridModel = gridModel;
-            _gameEvents = gameEvents;
             _actionHistory = actionHistory;
             _actionCountersModel = actionCountersModel;
             _statisticsModel = statisticsModel;
             _gameManager = gameManager;
             _gridView = gridView;
 
-            _matchHandler = new MatchHandler(gridModel, matchValidator, statisticsModel, actionHistory, gameEvents, gameManager);
-            _playerActionHandler = new PlayerActionHandler(actionCountersModel, actionHistory, gridModel, statisticsModel, gameEvents, gameManager, this);
-            _hintHandler = new HintHandler(gridModel, matchValidator, actionCountersModel, gameEvents, gridView, gameManager);
-            _platformBridge = new PlatformBridge(platformServices, gameEvents, actionCountersModel, gameManager);
+            _matchHandler = new MatchHandler(gridModel, matchValidator, statisticsModel, actionHistory, gameManager);
+            _playerActionHandler = new PlayerActionHandler(actionCountersModel, actionHistory, gridModel, statisticsModel, gameManager, this);
+            _hintHandler = new HintHandler(gridModel, matchValidator, actionCountersModel, gridView, gameManager);
+            _platformBridge = new PlatformBridge(platformServices, actionCountersModel, gameManager);
 
-            _gameEvents.onBoardCleared.AddListener(HandleBoardCleared);
-            _gameEvents.onTutorialCompleted.AddListener(HandleTutorialCompleted);
+            GlobalEvents.OnBoardCleared += HandleBoardCleared;
+            GlobalEvents.OnTutorialCompleted += HandleTutorialCompleted;
         }
 
         /// <summary>
@@ -66,8 +63,8 @@ namespace Core
         /// </summary>
         public void Dispose()
         {
-            _gameEvents.onBoardCleared.RemoveListener(HandleBoardCleared);
-            _gameEvents.onTutorialCompleted.RemoveListener(HandleTutorialCompleted);
+            GlobalEvents.OnBoardCleared -= HandleBoardCleared;
+            GlobalEvents.OnTutorialCompleted -= HandleTutorialCompleted;
 
             _matchHandler?.Dispose();
             _playerActionHandler?.Dispose();
@@ -92,7 +89,7 @@ namespace Core
         {
             if (!YG.YG2.saves.isTutorialCompleted)
             {
-                _gameEvents.onTutorialStarted.Raise();
+                GlobalEvents.OnTutorialStarted?.Invoke();
                 return;
             }
 
@@ -106,7 +103,7 @@ namespace Core
                 _statisticsModel.Reset();
             }
 
-            _gameEvents.onStatisticsChanged.Raise((_statisticsModel.Score, _statisticsModel.Multiplier));
+            GlobalEvents.OnStatisticsChanged?.Invoke((_statisticsModel.Score, _statisticsModel.Multiplier));
 
             for (var i = 0; i < GameConstants.InitialLinesOnStart; i++)
             {
@@ -120,7 +117,7 @@ namespace Core
                 }
             }
 
-            _gameEvents.onNewGameStarted.Raise();
+            GlobalEvents.OnNewGameStarted?.Invoke();
             _gameManager?.RequestSave();
         }
 

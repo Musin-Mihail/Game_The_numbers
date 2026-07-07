@@ -14,7 +14,6 @@ namespace Core.Handlers
         private readonly GridModel _gridModel;
         private readonly MatchValidator _matchValidator;
         private readonly ActionCountersModel _actionCountersModel;
-        private readonly GameEvents _gameEvents;
         private readonly GridView _gridView;
         private readonly GameManager _gameManager;
 
@@ -25,18 +24,16 @@ namespace Core.Handlers
             GridModel gridModel,
             MatchValidator matchValidator,
             ActionCountersModel actionCountersModel,
-            GameEvents gameEvents,
             GridView gridView,
             GameManager gameManager)
         {
             _gridModel = gridModel;
             _matchValidator = matchValidator;
             _actionCountersModel = actionCountersModel;
-            _gameEvents = gameEvents;
             _gridView = gridView;
             _gameManager = gameManager;
 
-            _gameEvents.onRequestHint.AddListener(FindAndShowHint);
+            GlobalEvents.OnRequestHint += FindAndShowHint;
         }
 
         /// <summary>
@@ -44,7 +41,7 @@ namespace Core.Handlers
         /// </summary>
         public void Dispose()
         {
-            _gameEvents.onRequestHint.RemoveListener(FindAndShowHint);
+            GlobalEvents.OnRequestHint -= FindAndShowHint;
         }
 
         /// <summary>
@@ -61,14 +58,14 @@ namespace Core.Handlers
 
             if (!_actionCountersModel.IsHintAvailable())
             {
-                _gameEvents.onRequestRefillCounters.Raise();
+                GlobalEvents.OnRequestRefillCounters?.Invoke();
                 return;
             }
 
             var activeCells = _gridModel.GetAllActiveCellData();
             if (activeCells.Count < 2)
             {
-                _gameEvents.onNoHintFound.Raise();
+                GlobalEvents.OnNoHintFound?.Invoke();
                 return;
             }
 
@@ -86,7 +83,7 @@ namespace Core.Handlers
                 }
             }
 
-            _gameEvents.onNoHintFound.Raise();
+            GlobalEvents.OnNoHintFound?.Invoke();
         }
 
         /// <summary>
@@ -99,7 +96,7 @@ namespace Core.Handlers
                 _actionCountersModel.DecrementHint();
             }
 
-            _gameEvents.onHintFound.Raise((cell1.Id, cell2.Id));
+            GlobalEvents.OnHintFound?.Invoke((cell1.Id, cell2.Id));
             _gameManager?.RequestSave();
         }
     }

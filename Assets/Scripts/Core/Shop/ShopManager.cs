@@ -14,17 +14,33 @@ namespace Core.Shop
     /// </summary>
     public class ShopManager : MonoBehaviour
     {
-        [Header("UI Элементы")]
-        [SerializeField] private Button purchaseButton;
-        [SerializeField] private TextMeshProUGUI priceText;
-        private GameEvents _gameEvents;
+        private Button _purchaseButton;
+        private TextMeshProUGUI _priceText;
         private Purchase _productInfo;
         private ActionCountersModel _actionCountersModel;
         private LocalizationManager _localizationManager;
 
-        public void Initialize(GameEvents gameEvents, ActionCountersModel actionCountersModel)
+        private void Awake()
         {
-            _gameEvents = gameEvents;
+            BindUI();
+        }
+
+        private void BindUI()
+        {
+            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var t in allTransforms)
+            {
+                if (t.name == "DisabledCounters") _purchaseButton = t.GetComponent<Button>();
+            }
+            if (_purchaseButton != null)
+            {
+                var cost = _purchaseButton.transform.Find("Cost");
+                if (cost != null) _priceText = cost.Find("Text")?.GetComponent<TextMeshProUGUI>();
+            }
+        }
+
+        public void Initialize(ActionCountersModel actionCountersModel)
+        {
             _actionCountersModel = actionCountersModel;
             _localizationManager = ServiceProvider.GetService<LocalizationManager>();
 
@@ -98,9 +114,9 @@ namespace Core.Shop
                 }
                 else
                 {
-                    if (priceText) priceText.text = _localizationManager.Get("shopProductNotFound");
+                    if (_priceText) _priceText.text = _localizationManager.Get("shopProductNotFound");
                     Debug.LogError($"Ошибка ShopManager: Товар с ID '{GameConstants.DisableCountersProductId}' не найден. Проверьте настройки в InfoYG -> Payments.");
-                    if (purchaseButton) purchaseButton.interactable = false;
+                    if (_purchaseButton) _purchaseButton.interactable = false;
                 }
             }
         }
@@ -121,12 +137,12 @@ namespace Core.Shop
         /// </summary>
         private void SetProductAsAvailable()
         {
-            if (priceText)
-                priceText.text = _productInfo.price;
-            if (!purchaseButton) return;
-            purchaseButton.interactable = true;
-            purchaseButton.onClick.RemoveAllListeners();
-            purchaseButton.onClick.AddListener(() => _gameEvents.onRequestDisableCounters.Raise());
+            if (_priceText)
+                _priceText.text = _productInfo.price;
+            if (!_purchaseButton) return;
+            _purchaseButton.interactable = true;
+            _purchaseButton.onClick.RemoveAllListeners();
+            _purchaseButton.onClick.AddListener(() => GlobalEvents.OnRequestDisableCounters?.Invoke());
         }
 
         /// <summary>
@@ -134,11 +150,11 @@ namespace Core.Shop
         /// </summary>
         private void SetProductAsPurchased()
         {
-            if (priceText)
-                priceText.text = _localizationManager.Get("shopPurchased");
-            if (!purchaseButton) return;
-            purchaseButton.interactable = false;
-            purchaseButton.onClick.RemoveAllListeners();
+            if (_priceText)
+                _priceText.text = _localizationManager.Get("shopPurchased");
+            if (!_purchaseButton) return;
+            _purchaseButton.interactable = false;
+            _purchaseButton.onClick.RemoveAllListeners();
         }
     }
 }

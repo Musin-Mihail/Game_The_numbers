@@ -149,7 +149,7 @@ GameObject:
   - component: {fileID: 7891095979013504605}
   - component: {fileID: 4273783600037003697}
   m_Layer: 5
-  m_Name: FloatingScorePrefab
+  m_Name: Prefab_FloatingScore
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

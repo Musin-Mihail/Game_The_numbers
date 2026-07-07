@@ -222,7 +222,7 @@ GameObject:
   - component: {fileID: 1749348315303366812}
   - component: {fileID: 7973133808087302957}
   m_Layer: 5
-  m_Name: PlayerScore
+  m_Name: Prefab_LeaderboardEntry
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

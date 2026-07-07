@@ -12,44 +12,53 @@ namespace View.UI
     /// </summary>
     public class StatisticsWindowManager : MonoBehaviour
     {
-        [Tooltip("Объект окна статистики, который будет показан/скрыт")]
-        [SerializeField] private GameObject statisticsWindow;
+        private GameObject _statisticsWindow;
+        private LeaderboardView _leaderboardView;
 
-        [Header("Leaderboard")]
-        [Tooltip("Контроллер, отвечающий за создание и отображение таблицы лидеров")]
-        [SerializeField] private LeaderboardView leaderboardView;
+        private void Awake()
+        {
+            BindUI();
+        }
 
-        [Header("Event Listening")]
-        [Tooltip("Контейнер для игровых событий")]
-        [SerializeField] private GameEvents gameEvents;
+        private void BindUI()
+        {
+            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var t in allTransforms)
+            {
+                if (t.name == "Statistics" && t.parent != null && t.parent.name == "Canvas") _statisticsWindow = t.gameObject;
+            }
+
+            if (_statisticsWindow != null)
+            {
+                _leaderboardView = UnityEngine.Object.FindFirstObjectByType<LeaderboardView>(FindObjectsInactive.Include);
+                
+                var content = _statisticsWindow.transform.Find("Content");
+                var btnHideStatistics = content?.Find("Closed")?.GetComponent<UnityEngine.UI.Button>();
+                btnHideStatistics?.onClick.AddListener(() => GlobalEvents.OnHideStatistics?.Invoke());
+            }
+        }
 
         private void OnEnable()
         {
-            if (gameEvents)
-            {
-                gameEvents.onShowStatistics.AddListener(ShowStatisticsWindow);
-                gameEvents.onHideStatistics.AddListener(HideStatisticsWindow);
-            }
+            GlobalEvents.OnShowStatistics += ShowStatisticsWindow;
+            GlobalEvents.OnHideStatistics += HideStatisticsWindow;
 
             YG2.onGetLeaderboard += OnLeaderboardReceived;
         }
 
         private void OnDisable()
         {
-            if (gameEvents)
-            {
-                gameEvents.onShowStatistics.RemoveListener(ShowStatisticsWindow);
-                gameEvents.onHideStatistics.RemoveListener(HideStatisticsWindow);
-            }
+            GlobalEvents.OnShowStatistics -= ShowStatisticsWindow;
+            GlobalEvents.OnHideStatistics -= HideStatisticsWindow;
 
             YG2.onGetLeaderboard -= OnLeaderboardReceived;
         }
 
         private void Start()
         {
-            if (statisticsWindow)
+            if (_statisticsWindow)
             {
-                statisticsWindow.SetActive(false);
+                _statisticsWindow.SetActive(false);
             }
         }
 
@@ -58,8 +67,8 @@ namespace View.UI
         /// </summary>
         private void ShowStatisticsWindow()
         {
-            if (!statisticsWindow) return;
-            statisticsWindow.SetActive(true);
+            if (!_statisticsWindow) return;
+            _statisticsWindow.SetActive(true);
 
             if (YG2.player.auth)
             {
@@ -79,13 +88,13 @@ namespace View.UI
         {
             if (lb.technoName != GameConstants.LeaderboardName) return;
 
-            if (leaderboardView)
+            if (_leaderboardView)
             {
-                leaderboardView.BuildLeaderboard(lb);
+                _leaderboardView.BuildLeaderboard(lb);
             }
             else
             {
-                Debug.LogError("LeaderboardController не назначен в инспекторе!", this);
+                Debug.LogError("LeaderboardController не найден в StatisticsWindowManager!", this);
             }
         }
 
@@ -94,9 +103,9 @@ namespace View.UI
         /// </summary>
         private void HideStatisticsWindow()
         {
-            if (statisticsWindow)
+            if (_statisticsWindow)
             {
-                statisticsWindow.SetActive(false);
+                _statisticsWindow.SetActive(false);
             }
         }
     }

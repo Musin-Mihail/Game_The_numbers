@@ -11,10 +11,8 @@ namespace View.UI
     /// </summary>
     public class LeaderboardView : MonoBehaviour
     {
-        [Tooltip("Префаб для одной строки в таблице лидеров")]
-        [SerializeField] private LeaderboardEntry leaderboardEntryPrefab;
-        [Tooltip("Контейнер, в который будут добавляться строки таблицы")]
-        [SerializeField] private Transform container;
+        private LeaderboardEntry _leaderboardEntryPrefab;
+        private Transform _container;
 
         private readonly List<LeaderboardEntry> _activeEntries = new();
         private readonly Queue<LeaderboardEntry> _pooledEntries = new();
@@ -22,7 +20,26 @@ namespace View.UI
 
         private void Awake()
         {
+            BindUI();
             _dataProcessor = new LeaderboardDataProcessor();
+            var prefabObj = Resources.Load<GameObject>("Prefabs/Prefab_LeaderboardEntry");
+            if (prefabObj)
+            {
+                _leaderboardEntryPrefab = prefabObj.GetComponent<LeaderboardEntry>();
+            }
+        }
+
+        private void BindUI()
+        {
+            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var t in allTransforms)
+            {
+                if (t.name == "Leaderboard" && t.parent != null && t.parent.name == "Content")
+                {
+                    _container = t;
+                    break;
+                }
+            }
         }
 
         /// <summary>
@@ -80,7 +97,7 @@ namespace View.UI
         private LeaderboardEntry GetEntryFromPool()
         {
             LeaderboardEntry entry;
-            entry = _pooledEntries.Count > 0 ? _pooledEntries.Dequeue() : Instantiate(leaderboardEntryPrefab, container);
+            entry = _pooledEntries.Count > 0 ? _pooledEntries.Dequeue() : Instantiate(_leaderboardEntryPrefab, _container, false);
             entry.gameObject.SetActive(true);
             _activeEntries.Add(entry);
             return entry;

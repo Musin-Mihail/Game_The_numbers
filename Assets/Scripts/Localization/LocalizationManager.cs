@@ -23,10 +23,10 @@ namespace Localization
 
         public static event Action OnLanguageChanged;
 
-        public LocalizationManager(GameEvents gameEvents)
+        public LocalizationManager()
         {
             CurrentLanguage = "en";
-            gameEvents.onSetLanguage.AddListener(SetLanguage);
+            GlobalEvents.OnSetLanguage += SetLanguage;
             LoadTranslationsFile();
         }
 

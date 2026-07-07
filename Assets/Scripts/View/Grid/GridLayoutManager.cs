@@ -75,6 +75,8 @@ namespace View.Grid
         public void RefreshTopLine()
         {
             if (!_headerNumberDisplay) return;
+            if (!_scrollRect || !_scrollRect.content) return;
+
             var currentScrollPosition = _scrollRect.content.anchoredPosition.y;
             if (!(Mathf.Abs(currentScrollPosition - _lastLoggedScrollPosition) >= _scrollLoggingThreshold)) return;
 
@@ -119,6 +121,8 @@ namespace View.Grid
         /// </summary>
         public (int start, int end) GetVisibleLineRange(int buffer)
         {
+            if (!_scrollRect || !_scrollRect.viewport || !_contentContainer) return (0, 0);
+
             var viewportHeight = _scrollRect.viewport.rect.height;
             var contentPos = _contentContainer.anchoredPosition.y;
             var cellSize = GameConstants.CellSize;

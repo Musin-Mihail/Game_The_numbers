@@ -9,29 +9,49 @@ namespace View.UI
     /// </summary>
     public class ActionCountersView : MonoBehaviour
     {
-        [Header("UI Dependencies")]
-        [SerializeField] private GameObject undoCount;
-        [SerializeField] private GameObject hintCount;
-        [SerializeField] private TextMeshProUGUI undoCountText;
-        [SerializeField] private TextMeshProUGUI hintCountText;
+        private GameObject _undoCount;
+        private GameObject _hintCount;
+        private TextMeshProUGUI _undoCountText;
+        private TextMeshProUGUI _hintCountText;
 
-        [Header("Event Listening")]
-        [SerializeField] private GameEvents gameEvents;
+        private void Awake()
+        {
+            BindUI();
+        }
+
+        private void BindUI()
+        {
+            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            UnityEngine.UI.Button btnAdd = null, btnMenu = null;
+
+            foreach (var t in allTransforms)
+            {
+                if (t.name == "Obj_UndoCount") _undoCount = t.gameObject;
+                else if (t.name == "Obj_HintCount") _hintCount = t.gameObject;
+                else if (t.name == "Txt_UndoCountText") _undoCountText = t.GetComponent<TextMeshProUGUI>();
+                else if (t.name == "Txt_HintCountText") _hintCountText = t.GetComponent<TextMeshProUGUI>();
+                else if (t.name == "NewLines" && t.parent != null && t.parent.name == "Buttons") btnAdd = t.GetComponent<UnityEngine.UI.Button>();
+                else if (t.name == "Menu" && t.parent != null && t.parent.name == "Buttons") btnMenu = t.GetComponent<UnityEngine.UI.Button>();
+            }
+
+            var btnUndo = _undoCount?.GetComponent<UnityEngine.UI.Button>();
+            btnUndo?.onClick.AddListener(() => GlobalEvents.OnUndoLastAction?.Invoke());
+
+            var btnHint = _hintCount?.GetComponent<UnityEngine.UI.Button>();
+            btnHint?.onClick.AddListener(() => GlobalEvents.OnRequestHint?.Invoke());
+
+            btnAdd?.onClick.AddListener(() => GlobalEvents.OnAddExistingNumbers?.Invoke());
+            btnMenu?.onClick.AddListener(() => GlobalEvents.OnShowMenu?.Invoke());
+        }
 
         private void OnEnable()
         {
-            if (gameEvents)
-            {
-                gameEvents.onCountersChanged.AddListener(UpdateCountersUI);
-            }
+            GlobalEvents.OnCountersChanged += UpdateCountersUI;
         }
 
         private void OnDisable()
         {
-            if (gameEvents)
-            {
-                gameEvents.onCountersChanged.RemoveListener(UpdateCountersUI);
-            }
+            GlobalEvents.OnCountersChanged -= UpdateCountersUI;
         }
 
         /// <summary>
@@ -46,21 +66,21 @@ namespace View.UI
 
             if (areCountersInfinite)
             {
-                if (undoCount) undoCount.SetActive(false);
-                if (hintCount) hintCount.SetActive(false);
+                if (_undoCount) _undoCount.SetActive(false);
+                if (_hintCount) _hintCount.SetActive(false);
             }
             else
             {
-                if (undoCountText)
+                if (_undoCountText)
                 {
-                    undoCountText.gameObject.SetActive(true);
-                    undoCountText.text = data.undo == 0 ? "+" : data.undo.ToString();
+                    _undoCountText.gameObject.SetActive(true);
+                    _undoCountText.text = data.undo == 0 ? "+" : data.undo.ToString();
                 }
 
-                if (hintCountText)
+                if (_hintCountText)
                 {
-                    hintCountText.gameObject.SetActive(true);
-                    hintCountText.text = data.hint == 0 ? "+" : data.hint.ToString();
+                    _hintCountText.gameObject.SetActive(true);
+                    _hintCountText.text = data.hint == 0 ? "+" : data.hint.ToString();
                 }
             }
         }

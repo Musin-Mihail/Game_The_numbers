@@ -13,7 +13,6 @@ namespace Core.Handlers
     public class PlatformBridge : IDisposable
     {
         private readonly IPlatformServices _platformServices;
-        private readonly GameEvents _gameEvents;
         private readonly ActionCountersModel _actionCountersModel;
         private readonly GameManager _gameManager;
 
@@ -22,12 +21,10 @@ namespace Core.Handlers
         /// </summary>
         public PlatformBridge(
             IPlatformServices platformServices,
-            GameEvents gameEvents,
             ActionCountersModel actionCountersModel,
             GameManager gameManager)
         {
             _platformServices = platformServices;
-            _gameEvents = gameEvents;
             _actionCountersModel = actionCountersModel;
             _gameManager = gameManager;
 
@@ -46,14 +43,14 @@ namespace Core.Handlers
 
         private void SubscribeToGameEvents()
         {
-            _gameEvents.onDisableCountersConfirmed.AddListener(HandleDisableCountersConfirmed);
-            _gameEvents.onShowRewardedAdForRefill.AddListener(HandleShowRewardedAdForRefill);
+            GlobalEvents.OnDisableCountersConfirmed += HandleDisableCountersConfirmed;
+            GlobalEvents.OnShowRewardedAdForRefill += HandleShowRewardedAdForRefill;
         }
 
         private void UnsubscribeFromGameEvents()
         {
-            _gameEvents.onDisableCountersConfirmed.RemoveListener(HandleDisableCountersConfirmed);
-            _gameEvents.onShowRewardedAdForRefill.RemoveListener(HandleShowRewardedAdForRefill);
+            GlobalEvents.OnDisableCountersConfirmed -= HandleDisableCountersConfirmed;
+            GlobalEvents.OnShowRewardedAdForRefill -= HandleShowRewardedAdForRefill;
         }
 
         private void SubscribeToPlatformEvents()
