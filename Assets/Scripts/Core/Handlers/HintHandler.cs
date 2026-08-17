@@ -3,6 +3,7 @@ using Core.Events;
 using Gameplay;
 using Model;
 using View.Grid;
+using YandexGames;
 
 namespace Core.Handlers
 {
@@ -49,7 +50,7 @@ namespace Core.Handlers
         /// </summary>
         private void FindAndShowHint()
         {
-            if (!YG.YG2.saves.isTutorialCompleted) return;
+            if (!YandexGamesSdk.Saves.isTutorialCompleted) return;
 
             if (_gridView.HasActiveHints)
             {

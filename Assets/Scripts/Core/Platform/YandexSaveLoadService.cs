@@ -6,7 +6,7 @@ using Core.Events;
 using Interfaces;
 using Model;
 using UnityEngine;
-using YG;
+using YandexGames;
 
 namespace Core.Platform
 {
@@ -64,22 +64,22 @@ namespace Core.Platform
                 }
             }
 
-            YG2.saves.gridState = gridStringBuilder.ToString();
+            YandexGamesSdk.Saves.gridState = gridStringBuilder.ToString();
 
 #pragma warning disable 0618
-            if (YG2.saves.gridCells != null)
+            if (YandexGamesSdk.Saves.gridCells != null)
             {
-                YG2.saves.gridCells.Clear();
+                YandexGamesSdk.Saves.gridCells.Clear();
             }
 #pragma warning restore 0618
-            YG2.saves.statistics = new StatisticsModelSerializable(_statisticsModel);
-            YG2.saves.actionCounters = new ActionCountersModelSerializable(_actionCountersModel);
+            YandexGamesSdk.Saves.statistics = new StatisticsModelSerializable(_statisticsModel);
+            YandexGamesSdk.Saves.actionCounters = new ActionCountersModelSerializable(_actionCountersModel);
             try
             {
-                var jsonSaves = JsonUtility.ToJson(YG2.saves);
+                var jsonSaves = JsonUtility.ToJson(YandexGamesSdk.Saves);
                 var sizeInBytes = Encoding.UTF8.GetByteCount(jsonSaves);
                 var sizeInKilobytes = sizeInBytes / 1024f;
-                Debug.Log($"Размер сохранения: {sizeInKilobytes:F2} КБ. Строка сетки: {YG2.saves.gridState.Length} символов.");
+                Debug.Log($"Размер сохранения: {sizeInKilobytes:F2} КБ. Строка сетки: {YandexGamesSdk.Saves.gridState.Length} символов.");
             }
             catch (Exception e)
             {
@@ -87,7 +87,7 @@ namespace Core.Platform
             }
 
             Debug.Log("Запрос на сохранение игровых данных через YandexSaveLoadService.");
-            YG2.SaveProgress();
+            YandexGamesSdk.SaveProgress();
             _isSaving = false;
         }
 
@@ -101,16 +101,16 @@ namespace Core.Platform
             _isLoading = true;
             var savedCells = new List<CellDataSerializable>();
 #pragma warning disable 0618
-            if (YG2.saves.gridCells != null && YG2.saves.gridCells.Count > 0)
+            if (YandexGamesSdk.Saves.gridCells != null && YandexGamesSdk.Saves.gridCells.Count > 0)
             {
                 Debug.Log("Обнаружены старые данные сохранения (gridCells). Производится миграция на новый формат.");
-                savedCells = YG2.saves.gridCells;
+                savedCells = YandexGamesSdk.Saves.gridCells;
             }
 #pragma warning restore 0618
-            else if (!string.IsNullOrEmpty(YG2.saves.gridState))
+            else if (!string.IsNullOrEmpty(YandexGamesSdk.Saves.gridState))
             {
                 Debug.Log("Загрузка из нового компактного формата (gridState).");
-                var lines = YG2.saves.gridState.Split('|');
+                var lines = YandexGamesSdk.Saves.gridState.Split('|');
                 for (var lineIndex = 0; lineIndex < lines.Length; lineIndex++)
                 {
                     var lineData = lines[lineIndex];
@@ -141,11 +141,11 @@ namespace Core.Platform
             }
 
             _gridModel.RestoreState(savedCells);
-            _statisticsModel.SetState(YG2.saves.statistics.score, YG2.saves.statistics.multiplier);
-            _actionCountersModel.RestoreState(YG2.saves.actionCounters);
+            _statisticsModel.SetState(YandexGamesSdk.Saves.statistics.score, YandexGamesSdk.Saves.statistics.multiplier);
+            _actionCountersModel.RestoreState(YandexGamesSdk.Saves.actionCounters);
             
-            GlobalEvents.OnToggleTopLine?.Invoke(YG2.saves.isTopLineVisible);
-            GlobalEvents.OnStatisticsChanged?.Invoke((YG2.saves.statistics.score, YG2.saves.statistics.multiplier));
+            GlobalEvents.OnToggleTopLine?.Invoke(YandexGamesSdk.Saves.isTopLineVisible);
+            GlobalEvents.OnStatisticsChanged?.Invoke((YandexGamesSdk.Saves.statistics.score, YandexGamesSdk.Saves.statistics.multiplier));
 
             Debug.Log("Игровые данные успешно загружены из сохранений Yandex.");
             _isLoading = false;
@@ -157,7 +157,7 @@ namespace Core.Platform
         /// </summary>
         public void SetTopLineVisibility(bool isVisible)
         {
-            YG2.saves.isTopLineVisible = isVisible;
+            YandexGamesSdk.Saves.isTopLineVisible = isVisible;
         }
     }
 }

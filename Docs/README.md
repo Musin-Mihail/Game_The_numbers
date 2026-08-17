@@ -7,6 +7,6 @@
 | [ARCHITECTURE.md](ARCHITECTURE.md)          | Слои, bootstrap, события                                   |
 | [UI_BUILDER.md](UI_BUILDER.md)              | Как менять интерфейс без Unity Editor                      |
 | [CHANGELOG.md](CHANGELOG.md)                | Журнал изменений рефакторинга                              |
-| [YandexGamesSDK/](YandexGamesSDK/README.md) | Снимок официального SDK Яндекс Игр (JS API, не Mobile Ads) |
+| [YandexGamesSDK/](YandexGamesSDK/README.md) | Снимок JS SDK Яндекс Игр; мост игры — [AGENT.md](YandexGamesSDK/AGENT.md) |
 
 Корневой [AGENTS.md](../AGENTS.md) — правила для агента.

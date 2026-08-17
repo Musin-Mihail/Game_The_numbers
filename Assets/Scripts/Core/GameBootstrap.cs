@@ -14,7 +14,7 @@ using UnityEngine;
 using View.Grid;
 using View.UI;
 using View.UI.Builder;
-using YG;
+using YandexGames;
 
 namespace Core
 {
@@ -85,6 +85,7 @@ namespace Core
             ServiceProvider.Register<ILeaderboardService>(yandexLeaderboardService);
             ServiceProvider.Register<IPlatformServices>(yandexPlatformService);
             _disposableServices.Add(yandexPlatformService);
+            _disposableServices.Add(yandexLeaderboardService);
 
             var tutorialHandler = new Core.Handlers.TutorialHandler(gridModel, yandexSaveLoadService, gameManager);
             ServiceProvider.Register(tutorialHandler);
@@ -146,8 +147,17 @@ namespace Core
         /// </summary>
         private void OnEnable()
         {
-            YG2.onGetSDKData += OnYandexSDKInitialized;
-            YG2.onDefaultSaves += OnDefaultSavesReceived;
+            YandexGamesSdk.Ready += OnYandexSDKInitialized;
+            YandexGamesSdk.DefaultSaves += OnDefaultSavesReceived;
+            if (YandexGamesSdk.IsReady)
+            {
+                if (YandexGamesSdk.Saves.idSave == 0 && string.IsNullOrEmpty(YandexGamesSdk.Saves.gridState))
+                {
+                    _isNewUser = true;
+                }
+
+                OnYandexSDKInitialized();
+            }
         }
 
         /// <summary>
@@ -155,8 +165,8 @@ namespace Core
         /// </summary>
         private void OnDisable()
         {
-            YG2.onGetSDKData -= OnYandexSDKInitialized;
-            YG2.onDefaultSaves -= OnDefaultSavesReceived;
+            YandexGamesSdk.Ready -= OnYandexSDKInitialized;
+            YandexGamesSdk.DefaultSaves -= OnDefaultSavesReceived;
         }
 
         /// <summary>
@@ -172,7 +182,7 @@ namespace Core
         /// </summary>
         private void OnYandexSDKInitialized()
         {
-            var langToLoad = YG2.lang;
+            var langToLoad = YandexGamesSdk.Lang;
             Debug.Log($"Язык определен из окружения SDK: '{langToLoad}'.");
 
             _localizationManager.SetInitialLanguage(langToLoad);
@@ -219,14 +229,14 @@ namespace Core
 
             if (loadSuccess)
             {
-                if (!YG2.saves.seenMigrationIds.Contains(GameConstants.ScoreResetMigrationId))
+                if (!YandexGamesSdk.Saves.seenMigrationIds.Contains(GameConstants.ScoreResetMigrationId))
                 {
                     Debug.Log($"Выполняется миграция данных '{GameConstants.ScoreResetMigrationId}': сброс счета.");
-                    YG2.saves.statistics.score = 0;
-                    YG2.saves.record = 0;
-                    YG2.saves.seenMigrationIds.Add(GameConstants.ScoreResetMigrationId);
+                    YandexGamesSdk.Saves.statistics.score = 0;
+                    YandexGamesSdk.Saves.record = 0;
+                    YandexGamesSdk.Saves.seenMigrationIds.Add(GameConstants.ScoreResetMigrationId);
                     var statisticsModel = ServiceProvider.GetService<StatisticsModel>();
-                    statisticsModel.SetState(YG2.saves.statistics.score, YG2.saves.statistics.multiplier);
+                    statisticsModel.SetState(YandexGamesSdk.Saves.statistics.score, YandexGamesSdk.Saves.statistics.multiplier);
                     GlobalEvents.OnStatisticsChanged?.Invoke((statisticsModel.Score, statisticsModel.Multiplier));
                     saveLoadService.RequestSave();
                 }
@@ -295,12 +305,14 @@ namespace Core
         {
             Debug.Log("Завершение настройки игры и активация UI.");
             SetupListeners();
-            if (!YG2.saves.seenUpdateVersions.Contains(GameConstants.GameVersion))
+            if (!YandexGamesSdk.Saves.seenUpdateVersions.Contains(GameConstants.GameVersion))
             {
                 GlobalEvents.OnNewUpdateAvailable?.Invoke();
             }
 
             _loadingScreenManager?.Hide();
+            YandexGamesSdk.NotifyGameReady();
+            YandexGamesSdk.NotifyGameplayStart();
         }
 
         private void SetupListeners()
@@ -336,9 +348,9 @@ namespace Core
             Debug.Log("Игрок запросил полный сброс. Сброс счетчиков и статистики.");
             var actionCountersModel = ServiceProvider.GetService<ActionCountersModel>();
             actionCountersModel?.ReEnableCounterLimits();
-            YG2.saves.seenUpdateVersions.Clear();
-            YG2.saves.seenMigrationIds.Clear();
-            YG2.saves.record = 0;
+            YandexGamesSdk.Saves.seenUpdateVersions.Clear();
+            YandexGamesSdk.Saves.seenMigrationIds.Clear();
+            YandexGamesSdk.Saves.record = 0;
             StartNewGameAndFinalize();
         }
 

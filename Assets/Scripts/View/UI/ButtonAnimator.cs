@@ -3,7 +3,7 @@ using Core;
 using Core.Events;
 using UnityEngine;
 using UnityEngine.UI;
-using YG;
+using YandexGames;
 
 namespace View.UI
 {
@@ -61,7 +61,7 @@ namespace View.UI
             if (!isForUpdateNotification) return;
             GlobalEvents.OnNewUpdateAvailable += StartAnimation;
             GlobalEvents.OnUpdateSeen += StopAnimation;
-            if (YG2.isSDKEnabled && !YG2.saves.seenUpdateVersions.Contains(GameConstants.GameVersion))
+            if (YandexGamesSdk.IsReady && !YandexGamesSdk.Saves.seenUpdateVersions.Contains(GameConstants.GameVersion))
             {
                 StartAnimation();
             }

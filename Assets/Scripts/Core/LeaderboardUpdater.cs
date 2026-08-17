@@ -1,7 +1,7 @@
 ﻿using Core.Events;
 using Interfaces;
 using UnityEngine;
-using YG;
+using YandexGames;
 
 namespace Core
 {
@@ -43,10 +43,10 @@ namespace Core
         /// <param name="statsData">Данные статистики (счет, множитель).</param>
         private void OnStatisticsChanged((long score, int multiplier) statsData)
         {
-            if (statsData.score <= YG2.saves.record) return;
-            YG2.saves.record = statsData.score;
+            if (statsData.score <= YandexGamesSdk.Saves.record) return;
+            YandexGamesSdk.Saves.record = statsData.score;
             _leaderboardService?.UpdateLeaderboard((int)statsData.score);
-            Debug.Log($"Новый рекорд установлен: {YG2.saves.record}");
+            Debug.Log($"Новый рекорд установлен: {YandexGamesSdk.Saves.record}");
             GlobalEvents.OnStatisticsChanged?.Invoke(statsData);
         }
     }

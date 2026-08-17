@@ -1,12 +1,12 @@
 ﻿using Core.Events;
 using Core;
+using Interfaces;
 using Localization;
 using Model;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using YG;
-using YG.Utils.Pay;
+using YandexGames;
 
 namespace Core.Shop
 {
@@ -17,9 +17,10 @@ namespace Core.Shop
     {
         private Button _purchaseButton;
         private TextMeshProUGUI _priceText;
-        private Purchase _productInfo;
+        private ProductInfo _productInfo;
         private ActionCountersModel _actionCountersModel;
         private LocalizationManager _localizationManager;
+        private IPlatformServices _platformServices;
 
         private void Awake()
         {
@@ -40,8 +41,9 @@ namespace Core.Shop
         {
             _actionCountersModel = actionCountersModel;
             _localizationManager = ServiceProvider.GetService<LocalizationManager>();
+            _platformServices = ServiceProvider.GetService<IPlatformServices>();
 
-            if (YG2.isSDKEnabled)
+            if (YandexGamesSdk.IsReady)
             {
                 InitializeShopProduct();
             }
@@ -49,15 +51,21 @@ namespace Core.Shop
 
         private void OnEnable()
         {
-            YG2.onGetSDKData += InitializeShopProduct;
-            YG2.onPurchaseSuccess += HandlePurchaseSuccess;
+            GlobalEvents.OnYandexSDKInitialized += InitializeShopProduct;
+            if (_platformServices != null)
+            {
+                _platformServices.OnPurchaseSuccess += HandlePurchaseSuccess;
+            }
             LocalizationManager.OnLanguageChanged += HandleLanguageChanged;
         }
 
         private void OnDisable()
         {
-            YG2.onGetSDKData -= InitializeShopProduct;
-            YG2.onPurchaseSuccess -= HandlePurchaseSuccess;
+            GlobalEvents.OnYandexSDKInitialized -= InitializeShopProduct;
+            if (_platformServices != null)
+            {
+                _platformServices.OnPurchaseSuccess -= HandlePurchaseSuccess;
+            }
             LocalizationManager.OnLanguageChanged -= HandleLanguageChanged;
         }
 
@@ -85,8 +93,9 @@ namespace Core.Shop
                 if (_localizationManager == null) return;
             }
 
-            YG2.ConsumePurchaseByID(GameConstants.DisableCountersProductId);
-            _productInfo = YG2.PurchaseByID(GameConstants.DisableCountersProductId);
+            _platformServices ??= ServiceProvider.GetService<IPlatformServices>();
+            _platformServices?.ConsumePurchase(GameConstants.DisableCountersProductId);
+            _productInfo = _platformServices?.GetProduct(GameConstants.DisableCountersProductId);
             UpdateProductUI();
         }
 
@@ -112,7 +121,7 @@ namespace Core.Shop
                 else
                 {
                     if (_priceText) _priceText.text = _localizationManager.Get("shopProductNotFound");
-                    Debug.LogError($"Ошибка ShopManager: Товар с ID '{GameConstants.DisableCountersProductId}' не найден. Проверьте настройки в InfoYG -> Payments.");
+                    Debug.LogError($"Ошибка ShopManager: Товар с ID '{GameConstants.DisableCountersProductId}' не найден.");
                     if (_purchaseButton) _purchaseButton.interactable = false;
                 }
             }

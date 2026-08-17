@@ -3,7 +3,7 @@ using Core.Events;
 using Interfaces;
 using Model;
 using UnityEngine;
-using YG;
+using YandexGames;
 
 namespace Core.Handlers
 {
@@ -59,7 +59,7 @@ namespace Core.Handlers
             _platformServices.OnPurchaseSuccess += OnPurchaseSuccess;
             _platformServices.OnPurchaseFailed += OnPurchaseFailed;
             _platformServices.OnRewardVideoSuccess += OnRewardVideoSuccess;
-            YG2.onCloseInterAdvWasShow += OnInterstitialAdSuccess;
+            _platformServices.OnInterstitialClosed += OnInterstitialAdSuccess;
         }
 
         private void UnsubscribeFromPlatformEvents()
@@ -68,7 +68,7 @@ namespace Core.Handlers
             _platformServices.OnPurchaseSuccess -= OnPurchaseSuccess;
             _platformServices.OnPurchaseFailed -= OnPurchaseFailed;
             _platformServices.OnRewardVideoSuccess -= OnRewardVideoSuccess;
-            YG2.onCloseInterAdvWasShow -= OnInterstitialAdSuccess;
+            _platformServices.OnInterstitialClosed -= OnInterstitialAdSuccess;
         }
 
         /// <summary>

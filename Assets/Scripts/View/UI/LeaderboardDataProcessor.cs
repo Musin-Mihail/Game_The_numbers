@@ -1,43 +1,38 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using YG.Utils.LB;
+using YandexGames;
 
 namespace View.UI
 {
     /// <summary>
-    /// Обрабатывает данные таблицы лидеров: фильтрует, сортирует и формирует
-    /// итоговый список игроков для отображения.
+    /// Фильтрует таблицу лидеров: топ-3, соседи текущего игрока, минимум 10 строк.
     /// </summary>
     public class LeaderboardDataProcessor
     {
-        private const int MinEntriesToShow = 10;
-        private const int PlayerNeighborsCount = 3;
+        public const int MinEntriesToShow = 10;
+        public const int PlayerNeighborsCount = 3;
 
-        /// <summary>
-        /// Обрабатывает сырые данные таблицы лидеров и возвращает отфильтрованный и отсортированный список.
-        /// </summary>
-        /// <param name="lb">Данные таблицы лидеров от Yandex Games.</param>
-        /// <returns>Список игроков для отображения.</returns>
-        public List<LBPlayerData> ProcessLeaderboardData(LBData lb)
+        public List<LeaderboardPlayer> ProcessLeaderboardData(LeaderboardTable table)
         {
-            var allPlayers = lb.players.ToList();
-            var currentPlayerRank = lb.currentPlayer.rank;
+            if (table?.players == null || table.players.Length == 0)
+            {
+                return new List<LeaderboardPlayer>();
+            }
 
+            var allPlayers = table.players.ToList();
+            var currentPlayerRank = table.currentPlayerRank;
             var addedPlayerIDs = new HashSet<string>();
-            var playersToShow = new List<LBPlayerData>();
+            var playersToShow = new List<LeaderboardPlayer>();
 
-            // Добавляем топ-3 игроков
             var topPlayers = allPlayers.Where(p => p.rank <= 3).OrderBy(p => p.rank);
             playersToShow.AddRange(topPlayers.Where(player => addedPlayerIDs.Add(player.uniqueID)));
 
-            // Добавляем соседей текущего игрока
             var neighbors = allPlayers
                 .Where(p => Mathf.Abs(p.rank - currentPlayerRank) <= PlayerNeighborsCount)
                 .OrderBy(p => p.rank);
             playersToShow.AddRange(neighbors.Where(player => addedPlayerIDs.Add(player.uniqueID)));
 
-            // Добираем игроков до минимального количества, если необходимо
             if (playersToShow.Count < MinEntriesToShow && allPlayers.Count > playersToShow.Count)
             {
                 var maxRankInList = playersToShow.Count > 0 ? playersToShow.Max(p => p.rank) : 0;
@@ -55,7 +50,6 @@ namespace View.UI
                 }
             }
 
-            // Возвращаем финальный отсортированный список
             return playersToShow.OrderBy(p => p.rank).ToList();
         }
     }

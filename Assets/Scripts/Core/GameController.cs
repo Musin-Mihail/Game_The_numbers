@@ -8,6 +8,7 @@ using Interfaces;
 using Model;
 using UnityEngine;
 using View.Grid;
+using YandexGames;
 
 namespace Core
 {
@@ -87,7 +88,7 @@ namespace Core
         /// <param name="resetStatisticsAndCounters">Если true, сбрасывает статистику и счетчики действий.</param>
         public void StartNewGame(bool resetStatisticsAndCounters)
         {
-            if (!YG.YG2.saves.isTutorialCompleted)
+            if (!YandexGamesSdk.Saves.isTutorialCompleted)
             {
                 GlobalEvents.OnTutorialStarted?.Invoke();
                 return;

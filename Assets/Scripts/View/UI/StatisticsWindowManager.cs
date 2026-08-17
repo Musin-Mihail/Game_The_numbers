@@ -1,8 +1,8 @@
 using Core;
 using Core.Events;
+using Interfaces;
 using UnityEngine;
-using YG;
-using YG.Utils.LB;
+using YandexGames;
 
 namespace View.UI
 {
@@ -13,6 +13,7 @@ namespace View.UI
     {
         private GameObject _statisticsWindow;
         private LeaderboardView _leaderboardView;
+        private ILeaderboardService _leaderboardService;
 
         private void Awake()
         {
@@ -35,16 +36,17 @@ namespace View.UI
         {
             GlobalEvents.OnShowStatistics += ShowStatisticsWindow;
             GlobalEvents.OnHideStatistics += HideStatisticsWindow;
-
-            YG2.onGetLeaderboard += OnLeaderboardReceived;
+            BindLeaderboardService();
         }
 
         private void OnDisable()
         {
             GlobalEvents.OnShowStatistics -= ShowStatisticsWindow;
             GlobalEvents.OnHideStatistics -= HideStatisticsWindow;
-
-            YG2.onGetLeaderboard -= OnLeaderboardReceived;
+            if (_leaderboardService != null)
+            {
+                _leaderboardService.OnEntriesReceived -= OnLeaderboardReceived;
+            }
         }
 
         private void Start()
@@ -55,35 +57,21 @@ namespace View.UI
             }
         }
 
-        /// <summary>
-        /// Показывает окно статистики и запрашивает обновление таблицы лидеров.
-        /// </summary>
         private void ShowStatisticsWindow()
         {
             if (!_statisticsWindow) return;
             _statisticsWindow.SetActive(true);
-
-            if (YG2.player.auth)
-            {
-                YG2.GetLeaderboard(GameConstants.LeaderboardName, 10, 3);
-            }
-            else
-            {
-                Debug.LogWarning("Player is not authorized. Cannot fetch leaderboard.");
-            }
+            BindLeaderboardService();
+            _leaderboardService?.RequestEntries(10, 3);
         }
 
-        /// <summary>
-        /// Метод-обработчик, который вызывается после получения данных от YG2.
-        /// </summary>
-        /// <param name="lb">Данные таблицы лидеров типа LBData.</param>
-        private void OnLeaderboardReceived(LBData lb)
+        private void OnLeaderboardReceived(LeaderboardTable table)
         {
-            if (lb.technoName != GameConstants.LeaderboardName) return;
+            if (table == null || table.technoName != GameConstants.LeaderboardName) return;
 
             if (_leaderboardView)
             {
-                _leaderboardView.BuildLeaderboard(lb);
+                _leaderboardView.BuildLeaderboard(table);
             }
             else
             {
@@ -91,14 +79,21 @@ namespace View.UI
             }
         }
 
-        /// <summary>
-        /// Скрывает окно статистики.
-        /// </summary>
         private void HideStatisticsWindow()
         {
             if (_statisticsWindow)
             {
                 _statisticsWindow.SetActive(false);
+            }
+        }
+
+        private void BindLeaderboardService()
+        {
+            if (_leaderboardService != null) return;
+            _leaderboardService = ServiceProvider.GetService<ILeaderboardService>();
+            if (_leaderboardService != null)
+            {
+                _leaderboardService.OnEntriesReceived += OnLeaderboardReceived;
             }
         }
     }

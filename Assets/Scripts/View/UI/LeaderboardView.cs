@@ -1,9 +1,8 @@
-﻿using Core;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Core;
 using UnityEngine;
 using View.UI.Builder;
-using YG;
-using YG.Utils.LB;
+using YandexGames;
 
 namespace View.UI
 {
@@ -35,7 +34,7 @@ namespace View.UI
         /// Строит и отображает таблицу лидеров на основе полученных данных.
         /// </summary>
         /// <param name="lb">Данные таблицы лидеров от Yandex Games.</param>
-        public void BuildLeaderboard(LBData lb)
+        public void BuildLeaderboard(LeaderboardTable lb)
         {
             ReturnAllEntriesToPool();
 
@@ -46,7 +45,7 @@ namespace View.UI
             }
 
             var finalDisplayList = _dataProcessor.ProcessLeaderboardData(lb);
-            var currentPlayerId = YG2.player.id;
+            var currentPlayerId = YandexGamesSdk.PlayerId;
 
             var lastRank = 0;
             foreach (var player in finalDisplayList)

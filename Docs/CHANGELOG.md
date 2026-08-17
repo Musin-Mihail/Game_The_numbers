@@ -4,8 +4,7 @@
 
 ## 2026-08-18
 
-- Дополнен снимок Yandex Games SDK для прямой интеграции без PluginYG2: `AGENT.md` (карта YG2→ysdk), `types/ysdk.d.ts`, восстановленные примеры `/sdk.js`, local-launch и debug-панель.
-- Снимок документации Yandex Games SDK в `Docs/YandexGamesSDK/` (нативный JS API + Unity/PluginYG2 + требования). Mobile Ads SDK не качался — это другой продукт.
+- PluginYG2 заменён тонким мостом `YandexGamesSdk` → `ysdk`. Облачный JSON в формате `{ saves: [json] }`. EditMode-тесты в `Assets/Tests/Editor/`. Курс `Docs/YandexGamesSDK/unity/` удалён; остальные страницы `sdk/` оставлены.
 - HUD-иконки (`menu`, `add`, `undo`, `hint`, `Rating`) красятся в `UiTheme.Icon` (почти чёрный): спрайты белые, на светлом фоне их не было видно.
 - Окна меню, правил, опций и рейтинга с непрозрачным белым фоном — сетка больше не просвечивает сквозь оверлеи.
 - Всплывающие очки: хост `Score` в той же системе координат, что и ячейки (pivot сверху слева); цифры рисуются поверх сетки.

@@ -15,6 +15,6 @@
 - Не редактировать `Assets/Scenes/PlayingField.unity` и `.prefab` ради UI.
 - Не вешать ссылки через `[SerializeField]` на сценные объекты.
 - Не восстанавливать ScriptableObject-события; использовать `GlobalEvents`.
-- Не трогать `Assets/PluginYourGames` без явной задачи по SDK.
+- Не тащить в игру API Яндекса, которое она не использует (review, shortcut, remote config).
 
-Подробности: [Docs/UI_BUILDER.md](Docs/UI_BUILDER.md), [Docs/ARCHITECTURE.md](Docs/ARCHITECTURE.md), [Docs/YandexGamesSDK/README.md](Docs/YandexGamesSDK/README.md). Прямая интеграция SDK без PluginYG2: [Docs/YandexGamesSDK/AGENT.md](Docs/YandexGamesSDK/AGENT.md).
+Подробности: [Docs/UI_BUILDER.md](Docs/UI_BUILDER.md), [Docs/ARCHITECTURE.md](Docs/ARCHITECTURE.md). Платформа: [Docs/YandexGamesSDK/AGENT.md](Docs/YandexGamesSDK/AGENT.md), код моста — `Assets/Scripts/YandexGames/` + `Assets/Plugins/YandexGames/YandexGames.jslib`.

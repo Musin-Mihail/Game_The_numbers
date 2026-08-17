@@ -1,14 +1,17 @@
-﻿namespace Interfaces
+﻿using System;
+using YandexGames;
+
+namespace Interfaces
 {
     /// <summary>
     /// Интерфейс для сервиса таблицы лидеров.
     /// </summary>
     public interface ILeaderboardService
     {
-        /// <summary>
-        /// Обновляет счет игрока в таблице лидеров.
-        /// </summary>
-        /// <param name="score">Новый счет.</param>
+        event Action<LeaderboardTable> OnEntriesReceived;
+
         void UpdateLeaderboard(int score);
+
+        void RequestEntries(int quantityTop, int quantityAround);
     }
 }

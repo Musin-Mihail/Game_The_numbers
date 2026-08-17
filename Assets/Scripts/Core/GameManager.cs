@@ -2,7 +2,7 @@
 using Core.Events;
 using Interfaces;
 using UnityEngine;
-using YG;
+using YandexGames;
 
 namespace Core
 {
@@ -80,9 +80,9 @@ namespace Core
         /// </summary>
         private void HandleMarkUpdateSeen()
         {
-            if (YG2.saves.seenUpdateVersions.Contains(GameConstants.GameVersion)) return;
+            if (YandexGamesSdk.Saves.seenUpdateVersions.Contains(GameConstants.GameVersion)) return;
             Debug.Log($"Игрок посмотрел обновление {GameConstants.GameVersion}.");
-            YG2.saves.seenUpdateVersions.Add(GameConstants.GameVersion);
+            YandexGamesSdk.Saves.seenUpdateVersions.Add(GameConstants.GameVersion);
             GlobalEvents.OnUpdateSeen?.Invoke();
             RequestSave();
         }

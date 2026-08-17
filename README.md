@@ -87,11 +87,11 @@
 
 ### 5. Интеграция с Yandex Games
 
-- `YandexSaveLoadService`: Реализует интерфейс `ISaveLoadService`. Отвечает за сериализацию моделей (`GridModel`, `StatisticsModel` и др.) в специальный класс `SavesYG` и их сохранение/загрузку через плагин Yandex Games.
+- `YandexSaveLoadService`: Реализует интерфейс `ISaveLoadService`. Сериализует модели в `GameSaveData` и пишет облако через `YandexGamesSdk` (`player.setData` в формате PluginYG2).
 
 - `YandexLeaderboardService`: Отправляет счет игрока в таблицу лидеров.
 
-- `YandexPlatformService`: Управляет внутриигровыми покупками и показом рекламы с вознаграждением. Является мостом между игровыми событиями и API плагина.
+- `YandexPlatformService`: Покупки и реклама. Мост между игровыми событиями и `YandexGamesSdk`.
 
 ### 6. Система отмены (Undo System)
 
@@ -107,4 +107,4 @@
 
 - **Платформа**: WebGL
 
-- **Сервисы**: Yandex Games SDK (интеграция через [PluginYG2 v2.0041](https://max-games.ru/doc/ "null"))
+- **Сервисы**: Yandex Games SDK (тонкий мост `YandexGamesSdk` → `ysdk`, без PluginYG2)

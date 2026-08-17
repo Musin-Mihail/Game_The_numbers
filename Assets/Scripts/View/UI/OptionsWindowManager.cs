@@ -2,7 +2,7 @@ using Core;
 using Core.Events;
 using UnityEngine;
 using UnityEngine.UI;
-using YG;
+using YandexGames;
 
 namespace View.UI
 {
@@ -42,7 +42,7 @@ namespace View.UI
             GlobalEvents.OnHideOptions += HideOptionsWindow;
 
             if (!_topLineToggle) return;
-            _topLineToggle.isOn = YG2.saves.isTopLineVisible;
+            _topLineToggle.isOn = YandexGamesSdk.Saves.isTopLineVisible;
             _topLineToggle.onValueChanged.AddListener(OnToggleValueChanged);
         }
 

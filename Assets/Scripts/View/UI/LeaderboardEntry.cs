@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using View.UI.Builder;
-using YG.Utils.LB;
+using YandexGames;
 
 namespace View.UI
 {
@@ -51,7 +51,7 @@ namespace View.UI
         /// </summary>
         /// <param name="playerData">Данные игрока от Yandex Games.</param>
         /// <param name="isCurrentPlayer">True, если это запись текущего игрока.</param>
-        public void Populate(LBPlayerData playerData, bool isCurrentPlayer)
+        public void Populate(LeaderboardPlayer playerData, bool isCurrentPlayer)
         {
             if (_playerInfoContainer != null) _playerInfoContainer.SetActive(true);
             if (_separatorContainer != null) _separatorContainer.SetActive(false);

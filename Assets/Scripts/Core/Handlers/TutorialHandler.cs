@@ -4,7 +4,7 @@ using Core;
 using Core.Events;
 using Interfaces;
 using Model;
-using YG;
+using YandexGames;
 
 namespace Core.Handlers
 {
@@ -93,7 +93,7 @@ namespace Core.Handlers
             else
             {
                 _currentStep = -1;
-                YG2.saves.isTutorialCompleted = true;
+                YandexGamesSdk.Saves.isTutorialCompleted = true;
                 _saveLoadService.RequestSave();
                 GlobalEvents.OnSetAllowedInputCells?.Invoke(null);
                 GlobalEvents.OnTutorialCompleted?.Invoke();

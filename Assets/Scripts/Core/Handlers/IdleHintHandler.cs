@@ -2,6 +2,7 @@ using System;
 using Core.Events;
 using Gameplay;
 using Model;
+using YandexGames;
 
 namespace Core.Handlers
 {
@@ -28,7 +29,7 @@ namespace Core.Handlers
 
         public void Tick(float deltaTime)
         {
-            if (!YG.YG2.saves.isTutorialCompleted) return;
+            if (!YandexGamesSdk.Saves.isTutorialCompleted) return;
             _idleTimer += deltaTime;
             if (_idleTimer >= IdleThreshold)
             {

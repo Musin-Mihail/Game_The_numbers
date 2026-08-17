@@ -1,39 +1,62 @@
-﻿using Interfaces;
+﻿using System;
+using Interfaces;
 using UnityEngine;
-using YG;
+using YandexGames;
 
 namespace Core.Platform
 {
     /// <summary>
     /// Реализация сервиса таблицы лидеров для Yandex Games.
     /// </summary>
-    public class YandexLeaderboardService : ILeaderboardService
+    public class YandexLeaderboardService : ILeaderboardService, IDisposable
     {
         private readonly string _leaderboardName;
 
-        /// <summary>
-        /// Инициализирует сервис таблицы лидеров с указанным именем.
-        /// </summary>
-        /// <param name="leaderboardName">Имя таблицы лидеров в Yandex Games Console.</param>
+        public event Action<LeaderboardTable> OnEntriesReceived;
+
         public YandexLeaderboardService(string leaderboardName)
         {
             _leaderboardName = leaderboardName;
+            YandexGamesSdk.LeaderboardReceived += OnSdkLeaderboardReceived;
         }
 
-        /// <summary>
-        /// Обновляет счет в таблице лидеров Yandex.
-        /// </summary>
+        public void Dispose()
+        {
+            YandexGamesSdk.LeaderboardReceived -= OnSdkLeaderboardReceived;
+        }
+
         public void UpdateLeaderboard(int score)
         {
-            if (YG2.player.auth)
+            if (YandexGamesSdk.IsAuthorized)
             {
-                YG2.SetLeaderboard(_leaderboardName, score);
+                YandexGamesSdk.SetLeaderboardScore(_leaderboardName, score);
                 Debug.Log($"Таблица лидеров '{_leaderboardName}' обновлена с результатом: {score}");
             }
             else
             {
                 Debug.LogWarning("Игрок не авторизован. Результат не отправлен в таблицу лидеров.");
             }
+        }
+
+        public void RequestEntries(int quantityTop, int quantityAround)
+        {
+            if (!YandexGamesSdk.IsAuthorized)
+            {
+                Debug.LogWarning("Player is not authorized. Cannot fetch leaderboard.");
+                return;
+            }
+
+            YandexGamesSdk.RequestLeaderboard(_leaderboardName, quantityTop, quantityAround);
+        }
+
+        private void OnSdkLeaderboardReceived(LeaderboardTable table)
+        {
+            if (table == null || table.technoName != _leaderboardName)
+            {
+                return;
+            }
+
+            OnEntriesReceived?.Invoke(table);
         }
     }
 }

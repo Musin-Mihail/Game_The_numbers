@@ -19,8 +19,8 @@
 2. `PlayingFieldUiBuilder.ReplaceSceneUi()` удаляет старый Canvas / `Game/UI` / `Game/GAMEPLAY` и собирает интерфейс.
 3. Bootstrap находит компоненты по типу и внедряет зависимости.
 
-На сцене должны остаться: камера, свет, EventSystem, `Game/SYSTEMS` (bootstrap, GameManager, LeaderboardUpdater, AdTimerManager). YG2 создаётся плагином в DontDestroyOnLoad.
+На сцене должны остаться: камера, свет, EventSystem, `Game/SYSTEMS` (bootstrap, GameManager, LeaderboardUpdater, AdTimerManager). `YandexGamesSdk` создаётся в DontDestroyOnLoad до сцены (`RuntimeInitializeOnLoadMethod`).
 
 ## Сохранения и платформа
 
-`YandexSaveLoadService`, `YandexLeaderboardService`, `YandexPlatformService` реализуют интерфейсы в `Assets/Scripts/Interfaces`.
+`YandexSaveLoadService`, `YandexLeaderboardService`, `YandexPlatformService` реализуют интерфейсы в `Assets/Scripts/Interfaces`. Облако — `player.setData({ saves: [json] })` через `CloudSaveCodec` (формат PluginYG2, чтобы не потерять прогресс). EditMode-тесты: `Assets/Tests/Editor/`.

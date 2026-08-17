@@ -4,7 +4,7 @@ using Localization;
 using Model;
 using TMPro;
 using UnityEngine;
-using YG;
+using YandexGames;
 
 namespace View.UI
 {
@@ -84,7 +84,7 @@ namespace View.UI
 
             if (_recordText)
             {
-                _recordText.text = string.Format(_localizationManager.Get("record"), YG2.saves.record);
+                _recordText.text = string.Format(_localizationManager.Get("record"), YandexGamesSdk.Saves.record);
             }
 
             if (_multiplierText)

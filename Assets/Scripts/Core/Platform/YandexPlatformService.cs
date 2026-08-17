@@ -1,68 +1,78 @@
 ﻿using System;
 using Interfaces;
-using YG;
+using YandexGames;
 
 namespace Core.Platform
 {
     /// <summary>
     /// Реализация платформенных сервисов (покупки, реклама) для Yandex Games.
-    /// Реализует IDisposable для корректной отписки от событий.
     /// </summary>
     public class YandexPlatformService : IPlatformServices, IDisposable
     {
         public event Action<string> OnPurchaseSuccess;
         public event Action<string> OnPurchaseFailed;
         public event Action<string> OnRewardVideoSuccess;
+        public event Action<bool> OnInterstitialClosed;
 
-        /// <summary>
-        /// Инициализирует сервис и подписывается на события Yandex SDK.
-        /// </summary>
         public YandexPlatformService()
         {
-            YG2.onPurchaseSuccess += OnYgPurchaseSuccess;
-            YG2.onPurchaseFailed += OnYgPurchaseFailed;
-            YG2.onRewardAdv += OnYgRewardVideo;
+            YandexGamesSdk.PurchaseSuccess += OnSdkPurchaseSuccess;
+            YandexGamesSdk.PurchaseFailed += OnSdkPurchaseFailed;
+            YandexGamesSdk.Rewarded += OnSdkRewarded;
+            YandexGamesSdk.InterstitialClosed += OnSdkInterstitialClosed;
         }
 
-        /// <summary>
-        /// Корректно отписывается от всех событий Yandex SDK.
-        /// </summary>
         public void Dispose()
         {
-            YG2.onPurchaseSuccess -= OnYgPurchaseSuccess;
-            YG2.onPurchaseFailed -= OnYgPurchaseFailed;
-            YG2.onRewardAdv -= OnYgRewardVideo;
+            YandexGamesSdk.PurchaseSuccess -= OnSdkPurchaseSuccess;
+            YandexGamesSdk.PurchaseFailed -= OnSdkPurchaseFailed;
+            YandexGamesSdk.Rewarded -= OnSdkRewarded;
+            YandexGamesSdk.InterstitialClosed -= OnSdkInterstitialClosed;
         }
 
-        /// <summary>
-        /// Инициирует покупку через Yandex SDK.
-        /// </summary>
         public void Purchase(string productId)
         {
-            YG2.BuyPayments(productId);
+            YandexGamesSdk.Purchase(productId);
         }
 
-        /// <summary>
-        /// Показывает рекламу с вознаграждением через Yandex SDK.
-        /// </summary>
         public void ShowRewardedAd(string rewardId)
         {
-            YG2.RewardedAdvShow(rewardId);
+            YandexGamesSdk.ShowRewarded(rewardId);
         }
 
-        private void OnYgPurchaseSuccess(string purchasedId)
+        public void ShowInterstitialAd()
+        {
+            YandexGamesSdk.ShowInterstitial();
+        }
+
+        public void ConsumePurchase(string productId)
+        {
+            YandexGamesSdk.ConsumePurchase(productId);
+        }
+
+        public ProductInfo GetProduct(string productId)
+        {
+            return YandexGamesSdk.GetProduct(productId);
+        }
+
+        private void OnSdkPurchaseSuccess(string purchasedId)
         {
             OnPurchaseSuccess?.Invoke(purchasedId);
         }
 
-        private void OnYgPurchaseFailed(string failedId)
+        private void OnSdkPurchaseFailed(string failedId)
         {
             OnPurchaseFailed?.Invoke(failedId);
         }
 
-        private void OnYgRewardVideo(string rewardId)
+        private void OnSdkRewarded(string rewardId)
         {
             OnRewardVideoSuccess?.Invoke(rewardId);
+        }
+
+        private void OnSdkInterstitialClosed(bool wasShown)
+        {
+            OnInterstitialClosed?.Invoke(wasShown);
         }
     }
 }
