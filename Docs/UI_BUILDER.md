@@ -4,13 +4,13 @@
 
 ## Файлы
 
-| Файл | Роль |
-|---|---|
-| `UiIds.cs` | Имена объектов, которые ищет BindUI |
-| `UiTheme.cs` | Цвета, размеры, шрифт, спрайты |
-| `UiFactory.cs` | Примитивы (panel, button, text) |
-| `WidgetFactory.cs` | Ячейка, floating score, строка лидерборда |
-| `PlayingFieldUiBuilder.cs` | Сборка экранов при старте |
+| Файл                       | Роль                                      |
+| -------------------------- | ----------------------------------------- |
+| `UiIds.cs`                 | Имена объектов, которые ищет BindUI       |
+| `UiTheme.cs`               | Цвета, размеры, шрифт, спрайты            |
+| `UiFactory.cs`             | Примитивы (panel, button, text)           |
+| `WidgetFactory.cs`         | Ячейка, floating score, строка лидерборда |
+| `PlayingFieldUiBuilder.cs` | Сборка экранов при старте                 |
 
 ## Как добавить кнопку
 
@@ -23,12 +23,12 @@
 
 Рантайм грузит только `Resources.Load` из `Assets/Resources/`. Новые картинки класть сразу туда, не в `Materials`.
 
-| Путь для `Resources.Load` | Файл |
-|---|---|
-| `Sprites/Cell` | `Resources/Sprites/Cell.png` |
-| `Sprites/menu`, `add`, `undo`, `hint`, `Rating`, `player`, `Close`, `CheckBox` | `Resources/Sprites/*.png` |
-| `Sprites/Lang/EN` … `TR` | `Resources/Sprites/Lang/EN.png` |
-| `Fonts/light_pixel-7_main` | `Resources/Fonts/light_pixel-7_main.asset` |
+| Путь для `Resources.Load`                                                      | Файл                                       |
+| ------------------------------------------------------------------------------ | ------------------------------------------ |
+| `Sprites/Cell`                                                                 | `Resources/Sprites/Cell.png`               |
+| `Sprites/menu`, `add`, `undo`, `hint`, `Rating`, `player`, `Close`, `CheckBox` | `Resources/Sprites/*.png`                  |
+| `Sprites/Lang/EN` … `TR`                                                       | `Resources/Sprites/Lang/EN.png`            |
+| `Fonts/light_pixel-7_main`                                                     | `Resources/Fonts/light_pixel-7_main.asset` |
 
 `Image` без спрайта не рисуется — если файл не найден, `UiTheme` подставляет белый квад. Не вызывать `Resources.GetBuiltinResource`.
 
