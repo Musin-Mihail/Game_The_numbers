@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using View.UI.Builder;
 
 namespace View.Grid
 {
@@ -8,24 +9,21 @@ namespace View.Grid
     /// </summary>
     public class CellPool : MonoBehaviour
     {
-        private GameObject _cellPrefab;
         private Transform _canvasTransform;
         private readonly Queue<Cell> _pooledCells = new();
 
         private void Awake()
         {
-            _cellPrefab = Resources.Load<GameObject>("Prefabs/Prefab_Cell");
-            
-            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include);
             foreach (var t in allTransforms)
             {
-                if (t.name == "Content" && t.parent != null && t.parent.name == "Viewport")
+                if (t.name == UiIds.Content && t.parent != null && t.parent.name == UiIds.Viewport)
                 {
                     _canvasTransform = t;
                     break;
                 }
             }
-            
+
             if (_canvasTransform == null)
             {
                 Debug.LogError("[CellPool] Не удалось найти 'Content' внутри 'Viewport' на Canvas.");
@@ -46,12 +44,11 @@ namespace View.Grid
             }
             else
             {
-                var cellObj = Instantiate(_cellPrefab, _canvasTransform, false);
-                cellObj.transform.SetAsFirstSibling();
-                cell = cellObj.GetComponent<Cell>();
+                cell = WidgetFactory.CreateCell(_canvasTransform);
             }
 
             cell.transform.SetParent(_canvasTransform, false);
+            cell.transform.SetAsFirstSibling();
             cell.gameObject.SetActive(true);
             return cell;
         }

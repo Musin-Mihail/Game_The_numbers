@@ -19,6 +19,15 @@ namespace Localization
         private Text _text;
         private LocalizationManager _localizationManager;
 
+        /// <summary>
+        /// Назначает ключ локализации из кода (UI-билдер).
+        /// </summary>
+        public void Bind(string key)
+        {
+            localizationKey = key;
+            if (isActiveAndEnabled) UpdateText();
+        }
+
         private void Awake()
         {
             _textMeshPro = GetComponent<TextMeshProUGUI>();

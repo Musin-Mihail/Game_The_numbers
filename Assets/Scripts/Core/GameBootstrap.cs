@@ -13,6 +13,7 @@ using Model;
 using UnityEngine;
 using View.Grid;
 using View.UI;
+using View.UI.Builder;
 using YG;
 
 namespace Core
@@ -21,6 +22,7 @@ namespace Core
     /// Основной класс для инициализации игры. Отвечает за создание и регистрацию всех
     /// основных сервисов, моделей и контроллеров, а также за внедрение зависимостей.
     /// </summary>
+    [DefaultExecutionOrder(-100)]
     public class GameBootstrap : MonoBehaviour
     {
         private GridView gridView;
@@ -43,13 +45,13 @@ namespace Core
         private void BindCoreSystems()
         {
             // Ищем компоненты по типу. FindObjectsInactive.Include позволяет найти их даже на выключенных объектах UI!
-            gridView = UnityEngine.Object.FindFirstObjectByType<GridView>(FindObjectsInactive.Include);
-            headerNumberDisplay = UnityEngine.Object.FindFirstObjectByType<HeaderNumberDisplay>(FindObjectsInactive.Include);
-            confirmationDialog = UnityEngine.Object.FindFirstObjectByType<ConfirmationDialog>(FindObjectsInactive.Include);
-            leaderboardUpdater = UnityEngine.Object.FindFirstObjectByType<LeaderboardUpdater>(FindObjectsInactive.Include);
-            shopManager = UnityEngine.Object.FindFirstObjectByType<ShopManager>(FindObjectsInactive.Include);
-            gameManager = UnityEngine.Object.FindFirstObjectByType<GameManager>(FindObjectsInactive.Include);
-            _loadingScreenManager = UnityEngine.Object.FindFirstObjectByType<LoadingScreenManager>(FindObjectsInactive.Include);
+            gridView = UnityEngine.Object.FindAnyObjectByType<GridView>(FindObjectsInactive.Include);
+            headerNumberDisplay = UnityEngine.Object.FindAnyObjectByType<HeaderNumberDisplay>(FindObjectsInactive.Include);
+            confirmationDialog = UnityEngine.Object.FindAnyObjectByType<ConfirmationDialog>(FindObjectsInactive.Include);
+            leaderboardUpdater = UnityEngine.Object.FindAnyObjectByType<LeaderboardUpdater>(FindObjectsInactive.Include);
+            shopManager = UnityEngine.Object.FindAnyObjectByType<ShopManager>(FindObjectsInactive.Include);
+            gameManager = UnityEngine.Object.FindAnyObjectByType<GameManager>(FindObjectsInactive.Include);
+            _loadingScreenManager = UnityEngine.Object.FindAnyObjectByType<LoadingScreenManager>(FindObjectsInactive.Include);
 
             if (gridView == null) Debug.LogWarning("[GameBootstrap] Компонент GridView не найден ни на одном объекте.");
             if (gameManager == null) Debug.LogWarning("[GameBootstrap] Компонент GameManager не найден ни на одном объекте.");
@@ -57,10 +59,6 @@ namespace Core
 
         private void Awake()
         {
-            BindCoreSystems();
-            
-            _loadingScreenManager?.Show();
-
             ServiceProvider.Clear();
 
             _localizationManager = new LocalizationManager();
@@ -74,6 +72,11 @@ namespace Core
             ServiceProvider.Register(statisticsModel);
             ServiceProvider.Register(actionCountersModel);
             ServiceProvider.Register(actionHistory);
+
+            PlayingFieldUiBuilder.ReplaceSceneUi();
+            BindCoreSystems();
+
+            _loadingScreenManager?.Show();
 
             var yandexSaveLoadService = new YandexSaveLoadService(gridModel, statisticsModel, actionCountersModel);
             var yandexLeaderboardService = new YandexLeaderboardService(GameConstants.LeaderboardName);

@@ -1,6 +1,7 @@
 ﻿using Core;
 using System.Collections.Generic;
 using UnityEngine;
+using View.UI.Builder;
 using YG;
 using YG.Utils.LB;
 
@@ -12,7 +13,6 @@ namespace View.UI
     /// </summary>
     public class LeaderboardView : MonoBehaviour
     {
-        private LeaderboardEntry _leaderboardEntryPrefab;
         private Transform _container;
 
         private readonly List<LeaderboardEntry> _activeEntries = new();
@@ -23,11 +23,6 @@ namespace View.UI
         {
             BindUI();
             _dataProcessor = new LeaderboardDataProcessor();
-            var prefabObj = Resources.Load<GameObject>("Prefabs/Prefab_LeaderboardEntry");
-            if (prefabObj)
-            {
-                _leaderboardEntryPrefab = prefabObj.GetComponent<LeaderboardEntry>();
-            }
         }
 
         private void BindUI()
@@ -91,7 +86,7 @@ namespace View.UI
         private LeaderboardEntry GetEntryFromPool()
         {
             LeaderboardEntry entry;
-            entry = _pooledEntries.Count > 0 ? _pooledEntries.Dequeue() : Instantiate(_leaderboardEntryPrefab, _container, false);
+            entry = _pooledEntries.Count > 0 ? _pooledEntries.Dequeue() : WidgetFactory.CreateLeaderboardEntry(_container);
             entry.gameObject.SetActive(true);
             _activeEntries.Add(entry);
             return entry;

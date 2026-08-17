@@ -6,6 +6,7 @@ using Model;
 using UnityEngine;
 using UnityEngine.UI;
 using View.UI;
+using View.UI.Builder;
 
 namespace View.Grid
 {
@@ -21,12 +22,6 @@ namespace View.Grid
         private ScrollRect _scrollRect;
         private RectTransform _scrollviewContainer;
 
-        [Header("Настройки")]
-        [SerializeField] private Color positiveScoreColor = Color.green;
-        [SerializeField] private Color negativeScoreColor = Color.red;
-        [Tooltip("Количество рядов ячеек, которые будут созданы за пределами видимой области для плавной прокрутки.")]
-        [SerializeField] private int lineBuffer = 2;
-
         private readonly Dictionary<Guid, Cell> _cellViewInstances = new();
 
         private GridModel _gridModel;
@@ -35,6 +30,7 @@ namespace View.Grid
         private GridInputHandler _inputHandler;
         private GridVisuals _visuals;
         private GridLayoutManager _layoutManager;
+        private int _lineBuffer = UiTheme.LineBuffer;
 
         /// <summary>
         /// Указывает, есть ли в данный момент активные (подсвеченные) подсказки.
@@ -48,27 +44,34 @@ namespace View.Grid
         {
             _gridModel = gridModel;
             _headerNumberDisplay = headerNumberDisplay;
+            RebuildRuntime();
         }
 
         private void Awake()
         {
             BindUI();
-            _visuals = new GridVisuals(_cellViewInstances, _floatingScorePool, positiveScoreColor, negativeScoreColor);
-            _inputHandler = new GridInputHandler(_visuals);
-            _layoutManager = new GridLayoutManager(_contentContainer, _scrollRect, _scrollviewContainer, _headerNumberDisplay, _gridModel);
+            RebuildRuntime();
+        }
 
+        private void RebuildRuntime()
+        {
+            if (_scrollRect == null) BindUI();
+            _visuals = new GridVisuals(_cellViewInstances, _floatingScorePool, UiTheme.PositiveScore, UiTheme.NegativeScore);
+            _inputHandler = new GridInputHandler(_visuals);
+            _layoutManager?.Dispose();
+            _layoutManager = new GridLayoutManager(_contentContainer, _scrollRect, _scrollviewContainer, _headerNumberDisplay, _gridModel);
             _layoutManager.Initialize();
         }
 
         private void BindUI()
         {
-            _cellPool = UnityEngine.Object.FindFirstObjectByType<CellPool>(FindObjectsInactive.Include);
-            _floatingScorePool = UnityEngine.Object.FindFirstObjectByType<FloatingScorePool>(FindObjectsInactive.Include);
-            
-            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            _cellPool = UnityEngine.Object.FindAnyObjectByType<CellPool>(FindObjectsInactive.Include);
+            _floatingScorePool = UnityEngine.Object.FindAnyObjectByType<FloatingScorePool>(FindObjectsInactive.Include);
+
+            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include);
             foreach (var t in allTransforms)
             {
-                if (t.name == "ScrollView" && t.GetComponent<ScrollRect>() != null)
+                if (t.name == UiIds.ScrollView && t.GetComponent<ScrollRect>() != null)
                 {
                     _scrollRect = t.GetComponent<ScrollRect>();
                     break;
@@ -100,7 +103,7 @@ namespace View.Grid
 
         private void OnDestroy()
         {
-            _layoutManager.Dispose();
+            _layoutManager?.Dispose();
         }
 
         private void SubscribeToEvents()
@@ -167,7 +170,7 @@ namespace View.Grid
         {
             if (_gridModel == null || !_scrollRect) return;
             // 1. Рассчитать диапазон видимых линий
-            var (firstVisibleLine, lastVisibleLine) = _layoutManager.GetVisibleLineRange(lineBuffer);
+            var (firstVisibleLine, lastVisibleLine) = _layoutManager.GetVisibleLineRange(_lineBuffer);
             // 2. Определить, какие ячейки должны быть видимы
             var requiredCells = new HashSet<Guid>();
             for (var i = firstVisibleLine; i <= lastVisibleLine; i++)

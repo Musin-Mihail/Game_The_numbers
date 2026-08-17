@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using View.Grid;
+using View.UI.Builder;
 
 namespace View.UI
 {
@@ -10,15 +11,8 @@ namespace View.UI
     /// </summary>
     public class RulesGrid : MonoBehaviour
     {
-        private GameObject _cellPrefab;
         private RectTransform _gridContainer;
         private const int GridSize = 5;
-
-        [Header("Цвета подсветки")]
-        [SerializeField] private Color sameNumberColor = Color.yellow;
-        [SerializeField] private Color sumIsTenColor = Color.cyan;
-        [SerializeField] private Color lineWrapColor = Color.magenta;
-        [SerializeField] private Color firstAndLastColor = Color.green;
 
         private Cell[,] _cells;
         private int[,] _gridNumbers;
@@ -26,19 +20,23 @@ namespace View.UI
         private void Awake()
         {
             BindUI();
-            _cellPrefab = Resources.Load<GameObject>("Prefabs/Prefab_Cell");
         }
 
         private void BindUI()
         {
-            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var container = transform.Find(UiIds.RulesGridContainer);
+            if (container != null)
+            {
+                _gridContainer = container.GetComponent<RectTransform>();
+                return;
+            }
+
+            var allTransforms = Object.FindObjectsByType<Transform>(FindObjectsInactive.Include);
             foreach (var t in allTransforms)
             {
-                if (t.name == "Container_Grid")
-                {
-                    _gridContainer = t.GetComponent<RectTransform>();
-                    break;
-                }
+                if (t.name != UiIds.RulesGridContainer) continue;
+                _gridContainer = t.GetComponent<RectTransform>();
+                break;
             }
         }
 
@@ -80,47 +78,45 @@ namespace View.UI
 
         private void InstantiateGrid()
         {
-            if (!_cellPrefab || !_gridContainer)
+            if (!_gridContainer)
             {
-                Debug.LogError("Префаб ячейки или контейнер сетки не назначены.");
+                Debug.LogError("Контейнер сетки правил не назначен.");
                 return;
             }
 
-            var cellSize = _cellPrefab.GetComponent<RectTransform>().sizeDelta.x;
+            var cellSize = Core.GameConstants.CellSize;
             const float spacing = 5f;
-            
-            float totalWidth = GridSize * cellSize + (GridSize - 1) * spacing;
-            float totalHeight = GridSize * cellSize + (GridSize - 1) * spacing;
 
-            // Заставляем компонент резервировать место в VerticalLayoutGroup, чтобы текст не наезжал на сетку
-            var layoutElement = GetComponent<UnityEngine.UI.LayoutElement>();
-            if (layoutElement == null) layoutElement = gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
+            var totalWidth = GridSize * cellSize + (GridSize - 1) * spacing;
+            var totalHeight = GridSize * cellSize + (GridSize - 1) * spacing;
+
+            var layoutElement = GetComponent<LayoutElement>() ?? gameObject.AddComponent<LayoutElement>();
             layoutElement.minHeight = totalHeight + 20f;
             layoutElement.minWidth = totalWidth;
 
-            // Центрируем контейнер математически строго
             _gridContainer.anchorMin = new Vector2(0.5f, 0.5f);
             _gridContainer.anchorMax = new Vector2(0.5f, 0.5f);
             _gridContainer.pivot = new Vector2(0.5f, 0.5f);
             _gridContainer.sizeDelta = new Vector2(totalWidth, totalHeight);
             _gridContainer.anchoredPosition = Vector2.zero;
 
-            float startX = -totalWidth / 2f + cellSize / 2f;
-            float startY = totalHeight / 2f - cellSize / 2f;
+            var startX = -totalWidth / 2f + cellSize / 2f;
+            var startY = totalHeight / 2f - cellSize / 2f;
 
             for (var y = 0; y < GridSize; y++)
             {
                 for (var x = 0; x < GridSize; x++)
                 {
-                    // false гарантирует, что масштаб и позиция префаба не сломаются
-                    var cellGo = Instantiate(_cellPrefab, _gridContainer, false);
-                    var cell = cellGo.GetComponent<Cell>();
+                    var cell = WidgetFactory.CreateCell(_gridContainer);
                     _cells[y, x] = cell;
 
                     cell.text.text = _gridNumbers[y, x].ToString();
                     cell.SetVisualState(true);
 
                     var rectTransform = cell.GetComponent<RectTransform>();
+                    rectTransform.pivot = new Vector2(0.5f, 0.5f);
+                    rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+                    rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
                     rectTransform.anchoredPosition = new Vector2(startX + x * (cellSize + spacing), startY - y * (cellSize + spacing));
                 }
             }
@@ -128,14 +124,14 @@ namespace View.UI
 
         private void HighlightPairs()
         {
-            HighlightCell(2, 1, sameNumberColor);
-            HighlightCell(2, 2, sameNumberColor);
-            HighlightCell(0, 3, sumIsTenColor);
-            HighlightCell(1, 3, sumIsTenColor);
-            HighlightCell(2, 4, lineWrapColor);
-            HighlightCell(3, 0, lineWrapColor);
-            HighlightCell(0, 0, firstAndLastColor);
-            HighlightCell(4, 4, firstAndLastColor);
+            HighlightCell(2, 1, UiTheme.RulesSameNumber);
+            HighlightCell(2, 2, UiTheme.RulesSameNumber);
+            HighlightCell(0, 3, UiTheme.RulesSumIsTen);
+            HighlightCell(1, 3, UiTheme.RulesSumIsTen);
+            HighlightCell(2, 4, UiTheme.RulesLineWrap);
+            HighlightCell(3, 0, UiTheme.RulesLineWrap);
+            HighlightCell(0, 0, UiTheme.RulesFirstAndLast);
+            HighlightCell(4, 4, UiTheme.RulesFirstAndLast);
         }
 
         private void HighlightCell(int y, int x, Color color)

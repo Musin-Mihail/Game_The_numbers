@@ -27,7 +27,7 @@ namespace View.UI
 
         private void BindUI()
         {
-            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include);
             foreach (var t in allTransforms)
             {
                 if (t.name == "Txt_Score") _scoreText = t.GetComponent<TextMeshProUGUI>();

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Core;
 using Core.Events;
-using Model;
 using UnityEngine;
 using View.Grid;
+using View.UI.Builder;
 
 namespace View.UI
 {
@@ -12,23 +12,21 @@ namespace View.UI
     /// </summary>
     public class HeaderNumberDisplay : MonoBehaviour
     {
-        private GameObject _cellPrefab;
         private RectTransform _container;
 
         private readonly List<Cell> _topLineCells = new();
 
         private void Awake()
         {
-            _cellPrefab = Resources.Load<GameObject>("Prefabs/Prefab_Cell");
             BindUI();
         }
 
         private void BindUI()
         {
-            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include);
             foreach (var t in allTransforms)
             {
-                if (t.name == "Container" && t.parent != null && t.parent.name == "GameSpace")
+                if (t.name == UiIds.HeaderContainer && t.parent != null && t.parent.name == UiIds.GameSpace)
                 {
                     _container = t.GetComponent<RectTransform>();
                     break;
@@ -43,13 +41,6 @@ namespace View.UI
 
         private void Start()
         {
-            if (!_cellPrefab)
-            {
-                Debug.LogError("Ошибка: 'Prefab_Cell' не найден в Resources/Prefabs!", this);
-                enabled = false;
-                return;
-            }
-            
             CreateLineDisplay();
         }
 
@@ -68,21 +59,20 @@ namespace View.UI
 
         private void CreateLineDisplay()
         {
-            if (!_cellPrefab)
+            if (!_container)
             {
-                Debug.LogError("Ошибка: '_cellPrefab' не загружен в HeaderNumberDisplay!", this);
+                Debug.LogError("Ошибка: контейнер верхней строки не найден в HeaderNumberDisplay!", this);
                 return;
             }
 
             for (var i = 0; i < GameConstants.QuantityByWidth; i++)
             {
-                var cellGo = Instantiate(_cellPrefab, _container, false);
-                var cell = cellGo.GetComponent<Cell>();
+                var cell = WidgetFactory.CreateCell(_container);
 
                 cell.SetSelected(false);
                 cell.SetVisualState(false);
                 _topLineCells.Add(cell);
-                cellGo.SetActive(true);
+                cell.gameObject.SetActive(true);
                 var rectTransform = cell.TargetRectTransform;
                 rectTransform.anchoredPosition = new Vector2(GameConstants.CellSize * i + GameConstants.Indent / 2f, -GameConstants.Indent / 2f);
             }

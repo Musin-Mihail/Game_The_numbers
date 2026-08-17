@@ -61,7 +61,7 @@ public class ScriptUsageReporter : EditorWindow
     private void FindScriptsInScene()
     {
         _scriptUsages.Clear();
-        var allScripts = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
+        var allScripts = FindObjectsByType<MonoBehaviour>();
 
         foreach (var script in allScripts)
         {

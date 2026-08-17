@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using View.UI.Builder;
 
 namespace View.UI
 {
@@ -8,8 +9,7 @@ namespace View.UI
     /// </summary>
     public class FloatingScorePool : MonoBehaviour
     {
-        private GameObject _floatingScorePrefab;
-        [SerializeField] private int initialPoolSize = 10;
+        private int initialPoolSize = 10;
 
         private Transform _canvasTransform;
         private Transform _parentTransform;
@@ -17,19 +17,17 @@ namespace View.UI
 
         private void Awake()
         {
-            _floatingScorePrefab = Resources.Load<GameObject>("Prefabs/Prefab_FloatingScore");
-            
-            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var allTransforms = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include);
             foreach (var t in allTransforms)
             {
-                if (t.name == "Score" && t.parent != null && t.parent.name == "Content")
+                if (t.name == UiIds.FloatingScoreHost && t.parent != null && t.parent.name == UiIds.Content)
                 {
                     _canvasTransform = t;
                     _parentTransform = t;
                     break;
                 }
             }
-            
+
             if (_canvasTransform == null)
             {
                 Debug.LogError("[FloatingScorePool] Не удалось найти 'Score' внутри 'Content'.");
@@ -49,9 +47,8 @@ namespace View.UI
 
         private FloatingScore CreateNewInstance()
         {
-            var go = Instantiate(_floatingScorePrefab, _canvasTransform, false);
-            go.transform.SetParent(_parentTransform, false);
-            var floatingScore = go.GetComponent<FloatingScore>();
+            var floatingScore = WidgetFactory.CreateFloatingScore(_parentTransform);
+            floatingScore.transform.SetParent(_parentTransform, false);
             return floatingScore;
         }
 
@@ -60,8 +57,10 @@ namespace View.UI
         /// </summary>
         public FloatingScore GetScore()
         {
-            if (_pool.Count <= 0) return CreateNewInstance();
-            var scoreInstance = _pool.Dequeue();
+            var scoreInstance = _pool.Count > 0 ? _pool.Dequeue() : CreateNewInstance();
+            scoreInstance.transform.SetParent(_parentTransform, false);
+            _parentTransform.SetAsLastSibling();
+            scoreInstance.transform.SetAsLastSibling();
             scoreInstance.gameObject.SetActive(true);
             return scoreInstance;
         }

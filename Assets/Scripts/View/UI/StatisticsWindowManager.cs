@@ -22,8 +22,8 @@ namespace View.UI
         private void BindUI()
         {
             _statisticsWindow = transform.Find("Statistics")?.gameObject;
-            _leaderboardView = GetComponent<LeaderboardView>() ?? UnityEngine.Object.FindFirstObjectByType<LeaderboardView>(FindObjectsInactive.Include);
-            
+            _leaderboardView = GetComponent<LeaderboardView>() ?? UnityEngine.Object.FindAnyObjectByType<LeaderboardView>(FindObjectsInactive.Include);
+
             if (_statisticsWindow != null)
             {
                 var btnHideStatistics = _statisticsWindow.transform.FindComponentInChildren<UnityEngine.UI.Button>("Closed");

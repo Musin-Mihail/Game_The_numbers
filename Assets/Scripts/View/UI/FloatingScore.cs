@@ -2,6 +2,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using View.UI.Builder;
 
 namespace View.UI
 {
@@ -10,12 +11,11 @@ namespace View.UI
     /// </summary>
     public class FloatingScore : MonoBehaviour
     {
-        [SerializeField] private float fadeOutTime = 0.5f;
-        [SerializeField] private float lifeTime = 1f;
-
         private TextMeshProUGUI _scoreText;
         private RectTransform _rectTransform;
         private Action<FloatingScore> _onComplete;
+        private readonly float _fadeOutTime = UiTheme.FloatingScoreFadeOut;
+        private readonly float _lifeTime = UiTheme.FloatingScoreLifeTime;
 
         private void Awake()
         {
@@ -38,17 +38,24 @@ namespace View.UI
         /// <param name="onComplete">Callback, вызываемый по завершении анимации.</param>
         public void Show(string text, Color color, Vector2 centerPosition, Vector2 size, Action<FloatingScore> onComplete)
         {
+            if (_rectTransform == null) _rectTransform = GetComponent<RectTransform>();
+            if (_scoreText == null) BindUI();
+
             _onComplete = onComplete;
             if (_scoreText != null)
             {
                 _scoreText.text = text;
                 _scoreText.color = color;
             }
+
             _rectTransform.sizeDelta = size;
             _rectTransform.anchoredPosition = centerPosition;
+            transform.SetAsLastSibling();
+            if (transform.parent != null) transform.parent.SetAsLastSibling();
 
             gameObject.SetActive(true);
-            StartCoroutine(Animate());
+            if (gameObject.activeInHierarchy) StartCoroutine(Animate());
+            else _onComplete?.Invoke(this);
         }
 
         private IEnumerator Animate()
@@ -56,11 +63,11 @@ namespace View.UI
             var elapsedTime = 0f;
             var startColor = _scoreText != null ? _scoreText.color : Color.white;
 
-            while (elapsedTime < lifeTime)
+            while (elapsedTime < _lifeTime)
             {
-                if (elapsedTime > lifeTime - fadeOutTime)
+                if (elapsedTime > _lifeTime - _fadeOutTime)
                 {
-                    var alpha = Mathf.Lerp(1f, 0f, (elapsedTime - (lifeTime - fadeOutTime)) / fadeOutTime);
+                    var alpha = Mathf.Lerp(1f, 0f, (elapsedTime - (_lifeTime - _fadeOutTime)) / _fadeOutTime);
                     if (_scoreText != null) _scoreText.color = new Color(startColor.r, startColor.g, startColor.b, alpha);
                 }
 

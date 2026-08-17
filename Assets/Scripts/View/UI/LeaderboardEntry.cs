@@ -2,6 +2,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using View.UI.Builder;
 using YG.Utils.LB;
 
 namespace View.UI
@@ -11,9 +12,7 @@ namespace View.UI
     /// </summary>
     public class LeaderboardEntry : MonoBehaviour
     {
-        [Header("Стилизация текущего игрока")]
-        [Tooltip("Множитель размера шрифта для строки текущего игрока.")]
-        [SerializeField] private float fontSizeMultiplier = 1.2f;
+        private float _fontSizeMultiplier = UiTheme.LeaderboardFontMultiplier;
 
         private GameObject _playerInfoContainer;
         private TextMeshProUGUI _rankText;
@@ -68,9 +67,9 @@ namespace View.UI
 
             if (isCurrentPlayer)
             {
-                if (_rankText) _rankText.fontSize = _defaultRankFontSize * fontSizeMultiplier;
-                if (_nameText) _nameText.fontSize = _defaultNameFontSize * fontSizeMultiplier;
-                if (_scoreText) _scoreText.fontSize = _defaultScoreFontSize * fontSizeMultiplier;
+                if (_rankText) _rankText.fontSize = _defaultRankFontSize * _fontSizeMultiplier;
+                if (_nameText) _nameText.fontSize = _defaultNameFontSize * _fontSizeMultiplier;
+                if (_scoreText) _scoreText.fontSize = _defaultScoreFontSize * _fontSizeMultiplier;
             }
             else
             {

@@ -6,6 +6,7 @@ using Core.Events;
 using Localization;
 using UnityEngine;
 using UnityEngine.UI;
+using View.UI.Builder;
 
 namespace View.UI
 {
@@ -40,9 +41,24 @@ namespace View.UI
         private void Awake()
         {
             BindUI();
-            foreach (var mapping in languageMappings.Where(mapping => !_spriteMap.ContainsKey(mapping.languageCode)))
+            LoadLanguageSprites();
+        }
+
+        private void LoadLanguageSprites()
+        {
+            if (languageMappings != null)
             {
-                _spriteMap.Add(mapping.languageCode, mapping.languageSprite);
+                foreach (var mapping in languageMappings.Where(mapping =>
+                             mapping.languageSprite != null && !_spriteMap.ContainsKey(mapping.languageCode)))
+                {
+                    _spriteMap.Add(mapping.languageCode, mapping.languageSprite);
+                }
+            }
+
+            foreach (var code in UiIds.LanguageButtonNames.Select(n => n.ToLowerInvariant()))
+            {
+                if (_spriteMap.ContainsKey(code)) continue;
+                _spriteMap[code] = UiTheme.GetLanguageSprite(code);
             }
         }
 
@@ -62,7 +78,14 @@ namespace View.UI
                     {
                         var btn = child.GetComponent<Button>();
                         var langCode = child.name.ToLower();
-                        if (btn != null) btn.onClick.AddListener(() => GlobalEvents.OnSetLanguage?.Invoke(langCode));
+                        if (btn != null)
+                        {
+                            btn.onClick.AddListener(() =>
+                            {
+                                GlobalEvents.OnSetLanguage?.Invoke(langCode);
+                                HidePanel();
+                            });
+                        }
                     }
                 }
             }

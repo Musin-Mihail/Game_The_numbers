@@ -22,8 +22,8 @@ namespace View.UI
             _rulesWindow = transform.Find("Rules")?.gameObject;
             if (_rulesWindow != null)
             {
-                _rulesGrid = _rulesWindow.transform.FindComponentInChildren<RulesGrid>("RulesGrid") ?? UnityEngine.Object.FindFirstObjectByType<RulesGrid>(FindObjectsInactive.Include);
-                
+                _rulesGrid = _rulesWindow.transform.FindComponentInChildren<RulesGrid>("RulesGrid") ?? UnityEngine.Object.FindAnyObjectByType<RulesGrid>(FindObjectsInactive.Include);
+
                 var btnHideRules = _rulesWindow.transform.FindComponentInChildren<UnityEngine.UI.Button>("Closed");
                 btnHideRules?.onClick.AddListener(() => GlobalEvents.OnHideRules?.Invoke());
             }

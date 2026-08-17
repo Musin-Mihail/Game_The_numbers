@@ -22,6 +22,19 @@ namespace View.UI
         [Header("Behavior")]
         [Tooltip("Отметьте, если эта кнопка используется специально для уведомлений об обновлении.")]
         [SerializeField] private bool isForUpdateNotification;
+
+        /// <summary>
+        /// Включает анимацию «есть обновление» из UI-билдера.
+        /// </summary>
+        public void ConfigureForUpdateNotification()
+        {
+            isForUpdateNotification = true;
+            GlobalEvents.OnNewUpdateAvailable -= StartAnimation;
+            GlobalEvents.OnUpdateSeen -= StopAnimation;
+            GlobalEvents.OnNewUpdateAvailable += StartAnimation;
+            GlobalEvents.OnUpdateSeen += StopAnimation;
+        }
+
         private RectTransform _rectTransform;
         private Image _buttonImage;
         private Color _originalColor;
@@ -45,7 +58,10 @@ namespace View.UI
 
         private void OnEnable()
         {
-            if (isForUpdateNotification && YG2.isSDKEnabled && !YG2.saves.seenUpdateVersions.Contains(GameConstants.GameVersion))
+            if (!isForUpdateNotification) return;
+            GlobalEvents.OnNewUpdateAvailable += StartAnimation;
+            GlobalEvents.OnUpdateSeen += StopAnimation;
+            if (YG2.isSDKEnabled && !YG2.saves.seenUpdateVersions.Contains(GameConstants.GameVersion))
             {
                 StartAnimation();
             }
@@ -53,6 +69,8 @@ namespace View.UI
 
         private void OnDisable()
         {
+            GlobalEvents.OnNewUpdateAvailable -= StartAnimation;
+            GlobalEvents.OnUpdateSeen -= StopAnimation;
             StopAnimation();
         }
 

@@ -3,6 +3,7 @@ using Model;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using View.UI.Builder;
 
 namespace View.Grid
 {
@@ -14,18 +15,39 @@ namespace View.Grid
     public class Cell : MonoBehaviour
     {
         public TextMeshProUGUI text;
-        [SerializeField] private Color originalColor;
-        [SerializeField] private Color hintColor;
-        [SerializeField] private Color selectColor;
-        [SerializeField] private RectTransform targetRectTransform;
-        [SerializeField] private CellAnimator animator;
-        [SerializeField] private Image backgroundImage;
-        
+        private Color originalColor;
+        private Color hintColor;
+        private Color selectColor;
+        private RectTransform targetRectTransform;
+        private CellAnimator animator;
+        private Image backgroundImage;
+
+        private void Awake()
+        {
+            BindComponents();
+        }
+
+        private void BindComponents()
+        {
+            if (targetRectTransform == null) targetRectTransform = GetComponent<RectTransform>();
+            if (animator == null) animator = GetComponent<CellAnimator>();
+            if (backgroundImage == null) backgroundImage = GetComponent<Image>();
+            if (text == null)
+            {
+                var number = transform.Find(UiIds.CellNumber);
+                if (number != null) text = number.GetComponent<TextMeshProUGUI>();
+            }
+
+            originalColor = UiTheme.CellOriginal;
+            hintColor = UiTheme.CellHint;
+            selectColor = UiTheme.CellSelect;
+        }
+
         /// <summary>
         /// RectTransform, который используется для позиционирования.
         /// </summary>
         public RectTransform TargetRectTransform => targetRectTransform;
-        
+
         /// <summary>
         /// Компонент для анимации ячейки.
         /// </summary>

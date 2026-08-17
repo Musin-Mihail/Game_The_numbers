@@ -86,6 +86,7 @@ namespace View.Grid
         public void ShowFloatingScoreForPair(Vector2 pos1, Vector2 pos2, int score, bool isPositive)
         {
             var midPoint = (pos1 + pos2) / 2f;
+            midPoint += new Vector2(GameConstants.CellSize / 2f, -GameConstants.CellSize / 2f);
             var color = isPositive ? _positiveScoreColor : _negativeScoreColor;
             ShowFloatingScore(score, color, midPoint);
         }
@@ -110,10 +111,9 @@ namespace View.Grid
             if (!_floatingScorePool) return;
             var centerPosition = new Vector2(viewport.rect.width / 2f, -viewport.rect.height / 2f);
             var size = new Vector2(700, 250);
-            var adjustedPosition = new Vector2(centerPosition.x - size.x / 2f, centerPosition.y + size.y / 2f);
             var scoreTextInstance = _floatingScorePool.GetScore();
             var message = _localizationManager.Get("boardClearedMessage");
-            scoreTextInstance.Show(message, _positiveScoreColor, adjustedPosition, size, _floatingScorePool.ReturnScore);
+            scoreTextInstance.Show(message, _positiveScoreColor, centerPosition, size, _floatingScorePool.ReturnScore);
         }
 
         private void ShowFloatingScore(int score, Color color, Vector2 position)
