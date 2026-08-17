@@ -17,4 +17,4 @@
 - Не восстанавливать ScriptableObject-события; использовать `GlobalEvents`.
 - Не трогать `Assets/PluginYourGames` без явной задачи по SDK.
 
-Подробности: [Docs/UI_BUILDER.md](Docs/UI_BUILDER.md), [Docs/ARCHITECTURE.md](Docs/ARCHITECTURE.md).
+Подробности: [Docs/UI_BUILDER.md](Docs/UI_BUILDER.md), [Docs/ARCHITECTURE.md](Docs/ARCHITECTURE.md), [Docs/YandexGamesSDK/README.md](Docs/YandexGamesSDK/README.md). Прямая интеграция SDK без PluginYG2: [Docs/YandexGamesSDK/AGENT.md](Docs/YandexGamesSDK/AGENT.md).
