@@ -2,11 +2,12 @@
 
 Технические документы для людей и ИИ-агентов. Игровой UI собирается кодом, не сценой.
 
-| Файл                                        | Содержание                                                 |
-| ------------------------------------------- | ---------------------------------------------------------- |
-| [ARCHITECTURE.md](ARCHITECTURE.md)          | Слои, bootstrap, события                                   |
-| [UI_BUILDER.md](UI_BUILDER.md)              | Как менять интерфейс без Unity Editor                      |
-| [CHANGELOG.md](CHANGELOG.md)                | Журнал изменений рефакторинга                              |
+| Файл                                        | Содержание                                                                |
+| ------------------------------------------- | ------------------------------------------------------------------------- |
+| [ARCHITECTURE.md](ARCHITECTURE.md)          | Слои, bootstrap, события                                                  |
+| [UI_BUILDER.md](UI_BUILDER.md)              | Как менять интерфейс без Unity Editor                                     |
+| [COMFYUI_PROMPTS.md](COMFYUI_PROMPTS.md)    | Промпты для фона и иконок (ComfyUI, 24 ГБ VRAM)                           |
+| [CHANGELOG.md](CHANGELOG.md)                | Журнал изменений рефакторинга                                             |
 | [YandexGamesSDK/](YandexGamesSDK/README.md) | Снимок JS SDK Яндекс Игр; мост игры — [AGENT.md](YandexGamesSDK/AGENT.md) |
 
 Корневой [AGENTS.md](../AGENTS.md) — правила для агента.

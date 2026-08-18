@@ -25,13 +25,11 @@ namespace View.UI
                 btnHideMenu?.onClick.AddListener(() => GlobalEvents.OnHideMenu?.Invoke());
 
                 var btnShowOptions = _windowMenu.transform.FindComponentInChildren<UnityEngine.UI.Button>("Options");
-                btnShowOptions?.onClick.AddListener(() => {
+                btnShowOptions?.onClick.AddListener(() =>
+                {
                     GlobalEvents.OnShowOptions?.Invoke();
                     GlobalEvents.OnRequestMarkUpdateSeen?.Invoke();
                 });
-
-                var btnShowRules = _windowMenu.transform.FindComponentInChildren<UnityEngine.UI.Button>("Rules");
-                btnShowRules?.onClick.AddListener(() => GlobalEvents.OnShowRules?.Invoke());
             }
         }
 

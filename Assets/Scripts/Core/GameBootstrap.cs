@@ -351,6 +351,7 @@ namespace Core
             YandexGamesSdk.Saves.seenUpdateVersions.Clear();
             YandexGamesSdk.Saves.seenMigrationIds.Clear();
             YandexGamesSdk.Saves.record = 0;
+            YandexGamesSdk.Saves.isTutorialCompleted = false;
             StartNewGameAndFinalize();
         }
 
@@ -414,6 +415,7 @@ namespace Core
             var statisticsModel = ServiceProvider.GetService<StatisticsModel>();
             statisticsModel.SetState(0, statisticsModel.Multiplier);
             GlobalEvents.OnStatisticsChanged?.Invoke((statisticsModel.Score, statisticsModel.Multiplier));
+            YandexGamesSdk.Saves.isTutorialCompleted = false;
             _gameController.StartNewGame(false);
         }
     }

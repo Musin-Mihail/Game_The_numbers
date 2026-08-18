@@ -15,6 +15,7 @@ namespace View.UI.Builder
 
         public const float HeaderHeight = 170f;
         public const float ButtonsHeight = 200f;
+        public const float TutorialCaptionHeight = 360f;
         public const float HudButtonSize = 150f;
         public const float MenuButtonWidth = 730f;
         public const float MenuButtonHeight = 190f;
@@ -40,10 +41,6 @@ namespace View.UI.Builder
         public static readonly Color CellOriginal = new(0.533f, 0.702f, 0.859f, 0.502f);
         public static readonly Color CellHint = new(0.6f, 1f, 0.6f, 1f);
         public static readonly Color CellSelect = new(0.533f, 0.702f, 0.859f, 1f);
-        public static readonly Color RulesSameNumber = Color.yellow;
-        public static readonly Color RulesSumIsTen = Color.cyan;
-        public static readonly Color RulesLineWrap = Color.magenta;
-        public static readonly Color RulesFirstAndLast = Color.green;
 
         public static TMP_FontAsset Font
         {

@@ -62,7 +62,6 @@ namespace View.UI.Builder
             BuildMenu(canvasGo.transform);
             BuildOptions(canvasGo.transform);
             BuildStatistics(canvasGo.transform);
-            BuildRules(canvasGo.transform);
             BuildLoading(canvasGo.transform);
             BuildConfirmation(canvasGo.transform);
             BuildLanguagePanel(canvasGo.transform);
@@ -76,7 +75,6 @@ namespace View.UI.Builder
             canvasGo.AddComponent<OptionsWindowManager>();
             canvasGo.AddComponent<LeaderboardView>();
             canvasGo.AddComponent<StatisticsWindowManager>();
-            canvasGo.AddComponent<RulesWindowManager>();
         }
 
         private static void BuildHud(Transform canvas)
@@ -115,6 +113,7 @@ namespace View.UI.Builder
                 new Vector2(0f, -UiTheme.HeaderHeight));
 
             BuildScrollView(gameSpace.transform);
+            BuildTutorialCaption(gameSpace.transform);
 
             var topLine = UiFactory.Create(UiIds.HeaderContainer, gameSpace.transform);
             UiFactory.SetRect(UiFactory.Rect(topLine), new Vector2(0f, 1f), new Vector2(1f, 1f),
@@ -211,8 +210,6 @@ namespace View.UI.Builder
             var menu = UiFactory.CreateStretchOverlay(UiIds.Menu, canvas, UiTheme.MenuOverlay);
             var window = CreateCenteredWindow(UiIds.WindowMenu, menu.transform, UiTheme.MenuButtonWidth, 40f);
             UiFactory.CreateLabeledButton(UiIds.Continue, window.transform, "play",
-                new Vector2(UiTheme.MenuButtonWidth, UiTheme.MenuButtonHeight));
-            UiFactory.CreateLabeledButton(UiIds.RulesButton, window.transform, "rules",
                 new Vector2(UiTheme.MenuButtonWidth, UiTheme.MenuButtonHeight));
             var options = UiFactory.CreateLabeledButton(UiIds.OptionsButton, window.transform, "options",
                 new Vector2(UiTheme.MenuButtonWidth, UiTheme.MenuButtonHeight));
@@ -313,33 +310,29 @@ namespace View.UI.Builder
             stats.SetActive(false);
         }
 
-        private static void BuildRules(Transform canvas)
+        private static void BuildTutorialCaption(Transform gameSpace)
         {
-            var rules = UiFactory.CreateStretchOverlay(UiIds.Rules, canvas, UiTheme.OverlayDim);
-            var window = CreateCenteredWindow(UiIds.WindowRules, rules.transform, 1000f, 20f);
+            var caption = UiFactory.Create(UiIds.TutorialCaption, gameSpace);
+            UiFactory.SetRect(UiFactory.Rect(caption), new Vector2(0f, 0f), new Vector2(1f, 0f),
+                new Vector2(0.5f, 0f), Vector2.zero, new Vector2(0f, UiTheme.TutorialCaptionHeight));
 
-            UiFactory.CreateLabeledButton(UiIds.Closed, window.transform, "close",
-                new Vector2(UiTheme.MenuButtonWidth, 120f));
+            var text = UiFactory.Create(UiIds.TutorialCaptionText, caption.transform);
+            UiFactory.Stretch(UiFactory.Rect(text), new Vector2(40f, 110f), new Vector2(-40f, -16f));
+            UiFactory.AddText(text, "", 36f, UiTheme.TextDark, TextAlignmentOptions.Center, false, true);
 
-            var gridHost = UiFactory.Create(UiIds.RulesGrid, window.transform);
-            UiFactory.SetRect(UiFactory.Rect(gridHost), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(560f, 560f));
-            var container = UiFactory.Create(UiIds.RulesGridContainer, gridHost.transform);
-            UiFactory.Stretch(UiFactory.Rect(container));
-            gridHost.AddComponent<RulesGrid>();
+            var continueBtn = UiFactory.Create(UiIds.TutorialContinue, caption.transform);
+            UiFactory.SetRect(UiFactory.Rect(continueBtn), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
+                new Vector2(0.5f, 0f), new Vector2(0f, 16f), new Vector2(560f, 90f));
+            UiFactory.AddImage(continueBtn, UiTheme.Button);
+            UiFactory.AddButton(continueBtn);
+            var label = UiFactory.Create("Text (TMP)", continueBtn.transform);
+            UiFactory.Stretch(UiFactory.Rect(label));
+            UiFactory.AddText(label, "", 40f, UiTheme.TextDark, TextAlignmentOptions.Center, false, true);
+            UiFactory.BindLocalization(label, "continue");
+            continueBtn.SetActive(false);
 
-            var desc = UiFactory.Create(UiIds.RulesDescription, window.transform);
-            UiFactory.SetRect(UiFactory.Rect(desc), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(960f, 280f));
-            UiFactory.AddText(desc, "", 32f, UiTheme.TextDark, TextAlignmentOptions.TopLeft, false, true);
-            UiFactory.BindLocalization(desc, "gameRulesDescription");
-
-            var scoring = UiFactory.Create(UiIds.ScoringDescription, window.transform);
-            UiFactory.SetRect(UiFactory.Rect(scoring), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(960f, 220f));
-            UiFactory.AddText(scoring, "", 32f, UiTheme.TextDark, TextAlignmentOptions.TopLeft, false, true);
-            UiFactory.BindLocalization(scoring, "scoringRulesDescription");
-            rules.SetActive(false);
+            caption.AddComponent<TutorialCaptionView>();
+            caption.SetActive(false);
         }
 
         private static void BuildLoading(Transform canvas)

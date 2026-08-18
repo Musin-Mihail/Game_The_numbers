@@ -74,9 +74,8 @@ namespace Core
         }
 
         /// <summary>
-        /// Начинает новую игру, очищая поле, историю и опционально сбрасывая статистику.
+        /// После обучения запускает обычную игру на 5 линий.
         /// </summary>
-        /// <param name="resetStatisticsAndCounters">Если true, сбрасывает статистику и счетчики действий.</param>
         private void HandleTutorialCompleted()
         {
             StartNewGame(true);
@@ -88,6 +87,13 @@ namespace Core
         /// <param name="resetStatisticsAndCounters">Если true, сбрасывает статистику и счетчики действий.</param>
         public void StartNewGame(bool resetStatisticsAndCounters)
         {
+            if (resetStatisticsAndCounters)
+            {
+                _actionCountersModel.ResetCounters();
+                _statisticsModel.Reset();
+                GlobalEvents.OnStatisticsChanged?.Invoke((_statisticsModel.Score, _statisticsModel.Multiplier));
+            }
+
             if (!YandexGamesSdk.Saves.isTutorialCompleted)
             {
                 GlobalEvents.OnTutorialStarted?.Invoke();
@@ -97,14 +103,6 @@ namespace Core
             _gridView.ResetSelectionAndHints();
             _gridModel.ClearField();
             _actionHistory.Clear();
-
-            if (resetStatisticsAndCounters)
-            {
-                _actionCountersModel.ResetCounters();
-                _statisticsModel.Reset();
-            }
-
-            GlobalEvents.OnStatisticsChanged?.Invoke((_statisticsModel.Score, _statisticsModel.Multiplier));
 
             for (var i = 0; i < GameConstants.InitialLinesOnStart; i++)
             {

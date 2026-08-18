@@ -33,8 +33,10 @@ namespace View.UI.Builder
         public const string Menu = "Menu";
         public const string WindowMenu = "Obj_WindowMenu";
         public const string Continue = "Continue";
-        public const string RulesButton = "Rules";
         public const string OptionsButton = "Options";
+        public const string TutorialCaption = "TutorialCaption";
+        public const string TutorialCaptionText = "Txt_TutorialCaption";
+        public const string TutorialContinue = "Btn_TutorialContinue";
         public const string OpenLanguage = "Btn_OpenLanguagePanel";
         public const string CurrentLanguageImage = "Img_CurrentLanguage";
 
@@ -53,13 +55,6 @@ namespace View.UI.Builder
         public const string Statistics = "Statistics";
         public const string PlayerRating = "PlayerRating";
         public const string Leaderboard = "Leaderboard";
-
-        public const string Rules = "Rules";
-        public const string WindowRules = "Obj_RulesWindow";
-        public const string RulesGrid = "RulesGrid";
-        public const string RulesGridContainer = "Container_Grid";
-        public const string RulesDescription = "Text";
-        public const string ScoringDescription = "Text (1)";
 
         public const string Loading = "Loading";
         public const string ConfirmationDialog = "ConfirmationDialogPanel";

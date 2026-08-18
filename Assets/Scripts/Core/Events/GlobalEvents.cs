@@ -10,7 +10,7 @@ namespace Core.Events
         public static Action OnRequestNewGame;
         public static Action OnNewGameStarted;
         public static Action OnRequestHardReset;
-        
+
         public static Action<(CellData cell, bool animate)> OnCellAdded;
         public static Action<CellData> OnCellUpdated;
         public static Action<Guid> OnCellRemoved;
@@ -31,6 +31,8 @@ namespace Core.Events
 
         public static Action OnTutorialStarted;
         public static Action OnTutorialCompleted;
+        public static Action OnTutorialContinue;
+        public static Action<(string localizationKey, bool showContinue)> OnTutorialCaptionChanged;
         public static Action<List<Guid>> OnSetAllowedInputCells;
 
         public static Action OnRequestRefillCounters;
@@ -52,8 +54,6 @@ namespace Core.Events
         public static Action OnHideMenu;
         public static Action OnShowStatistics;
         public static Action OnHideStatistics;
-        public static Action OnShowRules;
-        public static Action OnHideRules;
         public static Action OnShowOptions;
         public static Action OnHideOptions;
         public static Action<string> OnSetLanguage;
