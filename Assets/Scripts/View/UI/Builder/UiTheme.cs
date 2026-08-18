@@ -17,6 +17,8 @@ namespace View.UI.Builder
         public const float ButtonsHeight = 200f;
         public const float TutorialCaptionHeight = 360f;
         public const float HudButtonSize = 150f;
+        public const float MenuCornerButtonSize = 120f;
+        public const float PlayButtonSize = 320f;
         public const float MenuButtonWidth = 730f;
         public const float MenuButtonHeight = 190f;
         public const float OverlayPanelWidthInset = 350f;
@@ -36,6 +38,7 @@ namespace View.UI.Builder
         public static readonly Color Icon = new(0.1f, 0.12f, 0.16f, 1f);
         public static readonly Color TextMuted = new(0f, 0f, 0f, 0.5f);
         public static readonly Color PositiveScore = new(0.08f, 0.55f, 0.12f, 1f);
+        public static readonly Color PlayButton = new(0.18f, 0.72f, 0.28f, 1f);
         public static readonly Color NegativeScore = Color.red;
 
         public static readonly Color CellOriginal = new(0.533f, 0.702f, 0.859f, 0.502f);
@@ -55,19 +58,8 @@ namespace View.UI.Builder
         }
 
         private static TMP_FontAsset _font;
-        private static TMP_FontAsset _cjkFont;
         private static Sprite _whiteSprite;
         private static readonly Dictionary<string, Sprite> LanguageSprites = new();
-
-        public static TMP_FontAsset CjkFont
-        {
-            get
-            {
-                if (_cjkFont != null) return _cjkFont;
-                _cjkFont = Resources.Load<TMP_FontAsset>("Fonts/NotoSansSC-Black") ?? Font;
-                return _cjkFont;
-            }
-        }
 
         /// <summary>
         /// Название языка на нём самом. Для списка выбора, не зависит от текущего UI-языка.
@@ -77,12 +69,10 @@ namespace View.UI.Builder
             return code.ToUpperInvariant() switch
             {
                 "EN" => "English",
-                "ZH" => "中文",
                 "ES" => "Español",
                 "FR" => "Français",
                 "RU" => "Русский",
                 "DE" => "Deutsch",
-                "TR" => "Türkçe",
                 _ => code
             };
         }
@@ -121,6 +111,8 @@ namespace View.UI.Builder
         public static Sprite RatingSprite => LoadSprite("Sprites/Rating");
         public static Sprite CloseSprite => LoadSprite("Sprites/Close");
         public static Sprite CheckBoxSprite => LoadSprite("Sprites/CheckBox");
+        public static Sprite GearSprite => LoadSprite("Sprites/gear");
+        public static Sprite PlaySprite => LoadSprite("Sprites/play");
 
         public static Sprite GetLanguageSprite(string languageCode)
         {

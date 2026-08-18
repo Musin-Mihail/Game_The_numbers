@@ -4,6 +4,8 @@
 
 Картинки класть в `Assets/Resources/Sprites/` (и `Sprites/Lang/` для флагов). UI грузит только `Resources.Load`, сцену и префабы не трогать. См. [UI_BUILDER.md](UI_BUILDER.md).
 
+Шестерёнка (`gear`) и треугольник «Играть» (`play`) **не генерировать в ComfyUI**: это простые глифы, игра уже кладёт белые PNG в `Resources/Sprites/`. ComfyUI — для фона и сложных иллюстраций. Из Cursor ComfyUI на вашей видеокарте не запускается.
+
 ## Железо: GTX 5090, 24 ГБ
 
 Хватает Flux.1 Dev и SD3.5 Large в fp16 без агрессивного offload.
@@ -176,9 +178,9 @@ Positive:
 white simple person silhouette icon, geometric head and shoulders, centered, square canvas, flat, transparent background, no face details, no photo
 ```
 
-### Флаги языков — `Sprites/Lang/EN` … `TR`
+### Флаги языков — `Sprites/Lang/EN` … `DE`
 
-Лучше не генерировать нейросетью (кривые флаги). Взять стандартные 4×3 PNG. Имена: `EN`, `ZH`, `ES`, `FR`, `RU`, `DE`, `TR`.
+Лучше не генерировать нейросетью (кривые флаги). Взять стандартные 4×3 PNG. Имена: `EN`, `ES`, `FR`, `RU`, `DE`.
 
 ## Импорт в Unity
 

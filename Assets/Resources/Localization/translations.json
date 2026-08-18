@@ -1,281 +1,219 @@
 ﻿{
   "play": {
     "en": "Play",
-    "zh": "玩",
     "es": "Jugar",
     "ru": "Играть",
     "fr": "Jouer",
-    "de": "Spielen",
-    "tr": "Oyna"
+    "de": "Spielen"
   },
   "options": {
     "en": "Options",
-    "zh": "选项",
     "es": "Opciones",
     "ru": "Опции",
     "fr": "Options",
-    "de": "Optionen",
-    "tr": "Seçenekler"
+    "de": "Optionen"
   },
   "close": {
     "en": "Close",
-    "zh": "关闭",
     "es": "Cerrar",
     "ru": "Закрыть",
     "fr": "Fermer",
-    "de": "Schließen",
-    "tr": "Kapat"
+    "de": "Schließen"
   },
   "multiplier": {
     "en": "Multiplier: x{0}",
-    "zh": "乘数: x{0}",
     "es": "Multiplicador: x{0}",
     "ru": "Множитель: x{0}",
     "fr": "Multiplicateur : x{0}",
-    "de": "Multiplikator: x{0}",
-    "tr": "Çarpan: x{0}"
+    "de": "Multiplikator: x{0}"
   },
   "score": {
     "en": "Score: {0}",
-    "zh": "分数: {0}",
     "es": "Puntuación: {0}",
     "ru": "Счёт: {0}",
     "fr": "Score : {0}",
-    "de": "Punktzahl: {0}",
-    "tr": "Skor: {0}"
+    "de": "Punktzahl: {0}"
   },
   "record": {
     "en": "Best: {0}",
-    "zh": "记录: {0}",
     "es": "Récord: {0}",
     "ru": "Рекорд: {0}",
     "fr": "Record : {0}",
-    "de": "Beste: {0}",
-    "tr": "Rekor: {0}"
+    "de": "Beste: {0}"
   },
   "playerRating": {
     "en": "Player Rating",
-    "zh": "玩家评分",
     "es": "Clasificación de jugadores",
     "ru": "Рейтинг игроков",
     "fr": "Classement des joueurs",
-    "de": "Spielerbewertung",
-    "tr": "Oyuncu Değerlendirmesi"
+    "de": "Spielerbewertung"
   },
   "restart": {
     "en": "Restart",
-    "zh": "重新开始",
     "es": "Reiniciar",
     "ru": "Начать заново",
     "fr": "Recommencer",
-    "de": "Neustart",
-    "tr": "Yeniden Başlat"
+    "de": "Neustart"
   },
   "infiniteHints": {
     "en": "Infinite Hints",
-    "zh": "无限提示",
     "es": "Pistas infinitas",
     "ru": "Бесконечные подсказки",
     "fr": "Indices infinis",
-    "de": "Unendlich viele Hinweise",
-    "tr": "Sınırsız İpuçları"
+    "de": "Unendlich viele Hinweise"
   },
   "resetData": {
     "en": "Reset Data",
-    "zh": "重置数据",
     "es": "Restablecer datos",
     "ru": "Сброс данных",
     "fr": "Réinitialiser les données",
-    "de": "Daten zurücksetzen",
-    "tr": "Verileri Sıfırla"
+    "de": "Daten zurücksetzen"
   },
   "showTopLine": {
     "en": "Show top line",
-    "zh": "显示顶行",
     "es": "Mostrar línea superior",
     "ru": "Показать верхнюю линию",
     "fr": "Afficher la ligne du haut",
-    "de": "Obere Zeile anzeigen",
-    "tr": "Üst çizgiyi göster"
+    "de": "Obere Zeile anzeigen"
   },
   "newGamePrompt": {
     "en": "Start a new game?\nStatistics will be saved",
-    "zh": "开始新游戏吗？\n统计数据将被保存",
     "es": "¿Empezar un juego nuevo?\nLas estadísticas se guardarán",
     "ru": "Начать новую игру?\nСтатистика сохранится",
     "fr": "Commencer une nouvelle partie ?\nLes statistiques seront sauvegardées",
-    "de": "Neues Spiel starten?\nStatistiken werden gespeichert",
-    "tr": "Yeni bir oyun başlatılsın mı?\nİstatistikler kaydedilecek"
+    "de": "Neues Spiel starten?\nStatistiken werden gespeichert"
   },
   "yes": {
     "en": "Yes",
-    "zh": "是",
     "es": "Sí",
     "ru": "Да",
     "fr": "Oui",
-    "de": "Ja",
-    "tr": "Evet"
+    "de": "Ja"
   },
   "no": {
     "en": "No",
-    "zh": "不",
     "es": "No",
     "ru": "Нет",
     "fr": "Non",
-    "de": "Nein",
-    "tr": "Hayır"
+    "de": "Nein"
   },
   "watchAdPrompt": {
     "en": "Watch an ad to refill the counter?",
-    "zh": "观看广告以补充计数器？",
     "es": "¿Ver un anuncio para rellenar el contador?",
     "ru": "Посмотреть рекламу, чтобы пополнить счётчик?",
     "fr": "Regarder une publicité pour recharger le compteur ?",
-    "de": "Werbung ansehen, um den Zähler aufzufüllen?",
-    "tr": "Sayacı doldurmak için bir reklam izlensin mi?"
+    "de": "Werbung ansehen, um den Zähler aufzufüllen?"
   },
   "buyInfiniteHintsPrompt": {
     "en": "Buy infinite hints?",
-    "zh": "购买无限提示？",
     "es": "¿Comprar pistas infinitas?",
     "ru": "Купить бесконечные подсказки?",
     "fr": "Acheter des indices infinis ?",
-    "de": "Unendlich viele Hinweise kaufen?",
-    "tr": "Sınırsız ipucu satın alınsın mı?"
+    "de": "Unendlich viele Hinweise kaufen?"
   },
   "tutorialSameNumber": {
     "en": "Tap two identical numbers that sit next to each other",
-    "zh": "点击两个相邻的相同数字",
     "es": "Toca dos números iguales que estén juntos",
     "ru": "Нажмите два одинаковых числа, стоящих рядом",
     "fr": "Touchez deux nombres identiques côte à côte",
-    "de": "Tippe zwei gleiche Zahlen, die nebeneinander liegen",
-    "tr": "Yan yana duran iki aynı sayıya dokunun"
+    "de": "Tippe zwei gleiche Zahlen, die nebeneinander liegen"
   },
   "tutorialSumTen": {
     "en": "Or the two numbers add up to 10. Nothing active may stand between them",
-    "zh": "或者两个数字之和为10。中间不能有其他有效格子",
     "es": "O los dos números suman 10. No puede haber celdas activas entre ellas",
     "ru": "Или сумма двух чисел равна 10. Между ними не должно быть других чисел",
     "fr": "Ou les deux nombres font 10. Rien d'actif ne doit se trouver entre eux",
-    "de": "Oder beide Zahlen ergeben 10. Dazwischen darf keine aktive Zelle sein",
-    "tr": "Ya da iki sayının toplamı 10 olmalı. Aralarında aktif hücre olmamalı"
+    "de": "Oder beide Zahlen ergeben 10. Dazwischen darf keine aktive Zelle sein"
   },
   "tutorialVertical": {
     "en": "A pair can also stand in the same column, one under the other",
-    "zh": "一对数字也可以在同一列，上下相邻",
     "es": "Una pareja también puede estar en la misma columna, una bajo la otra",
     "ru": "Пара может стоять и по вертикали — в одном столбце",
     "fr": "Une paire peut aussi être dans la même colonne, l'une sous l'autre",
-    "de": "Ein Paar kann auch senkrecht in derselben Spalte stehen",
-    "tr": "Çift aynı sütunda, alt alta da durabilir"
+    "de": "Ein Paar kann auch senkrecht in derselben Spalte stehen"
   },
   "tutorialLineWrap": {
     "en": "The last number in a row and the first in the next row also match",
-    "zh": "一行的最后一个数字和下一行的第一个数字也可以配对",
     "es": "El último número de una fila y el primero de la siguiente también forman pareja",
     "ru": "Последнее число в строке и первое в следующей — тоже пара",
     "fr": "Le dernier nombre d'une ligne et le premier de la suivante forment aussi une paire",
-    "de": "Die letzte Zahl einer Reihe und die erste der nächsten sind auch ein Paar",
-    "tr": "Bir satırın son sayısı ile sonraki satırın ilki de çifttir"
+    "de": "Die letzte Zahl einer Reihe und die erste der nächsten sind auch ein Paar"
   },
   "tutorialFirstLast": {
     "en": "The very first and the very last number on the field also count as a pair",
-    "zh": "整个场上的第一个和最后一个数字也可以配对",
     "es": "El primer y el último número del tablero también son una pareja",
     "ru": "Самое первое и самое последнее число на поле тоже можно убрать",
     "fr": "Le tout premier et le tout dernier nombre du plateau forment aussi une paire",
-    "de": "Die allererste und die allerletzte Zahl auf dem Feld sind auch ein Paar",
-    "tr": "Alanın en ilk ve en son sayısı da bir çifttir"
+    "de": "Die allererste und die allerletzte Zahl auf dem Feld sind auch ein Paar"
   },
   "tutorialScoring": {
     "en": "Removing one pair +1 point\nRemoving one line +10 points\nRemoving all numbers +1 multiplier\nPoints are multiplied by the multiplier",
-    "zh": "移除一对+1分\n移除一行+10分\n移除所有数字+1乘数\n分数乘以乘数",
     "es": "Eliminar un par +1 punto\nEliminar una línea +10 puntos\nEliminar todos los números +1 multiplicador\nLos puntos se multiplican por el multiplicador",
     "ru": "Удаление одной пары +1 очко\nУдаление одной линии +10 очков\nУдаление всех цифр +1 множитель\nОчки умножаются на множитель",
     "fr": "Supprimer une paire +1 point\nSupprimer une ligne +10 points\nSupprimer tous les nombres +1 multiplicateur\nLes points sont multipliés par le multiplicateur",
-    "de": "Entfernen eines Paares +1 Punkt\nEntfernen einer Zeile +10 Punkte\nEntfernen aller Zahlen +1 Multiplikator\nPunkte werden mit dem Multiplikator multipliziert",
-    "tr": "Bir çifti kaldırma +1 puan\nBir satırı kaldırma +10 puan\nTüm sayıları kaldırma +1 çarpan\nPuanlar çarpanla çarpılır"
+    "de": "Entfernen eines Paares +1 Punkt\nEntfernen einer Zeile +10 Punkte\nEntfernen aller Zahlen +1 Multiplikator\nPunkte werden mit dem Multiplikator multipliziert"
   },
   "newGame": {
     "en": "New Game",
-    "zh": "新游戏",
     "es": "Nuevo juego",
     "ru": "Новая игра",
     "fr": "Nouveau jeu",
-    "de": "Neues Spiel",
-    "tr": "Yeni Oyun"
+    "de": "Neues Spiel"
   },
   "retry": {
     "en": "Retry",
-    "zh": "再试一次",
     "es": "Reintentar",
     "ru": "Попробовать снова",
     "fr": "Réessayer",
-    "de": "Wiederholen",
-    "tr": "Tekrar Dene"
+    "de": "Wiederholen"
   },
   "loadError": {
     "en": "Failed to load data. Check your internet connection and try again",
-    "zh": "无法加载数据。请检查您的网络连接并重试",
     "es": "No se pudieron cargar los datos. Comprueba tu conexión a Internet y vuelve a intentarlo.",
     "ru": "Не удалось загрузить данные. Проверьте интернет-соединение и попробуйте снова",
     "fr": "Échec du chargement des données. Vérifiez votre connexion Internet et réessayez",
-    "de": "Daten konnten nicht geladen werden. Überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut",
-    "tr": "Veriler yüklenemedi. İnternet bağlantınızı kontrol edin ve tekrar deneyin"
+    "de": "Daten konnten nicht geladen werden. Überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut"
   },
   "boardClearedMessage": {
     "en": "Multiplier +1",
-    "zh": "乘数 +1",
     "es": "Multiplicador +1",
     "ru": "Множитель +1",
     "fr": "Multiplicateur +1",
-    "de": "Multiplikator +1",
-    "tr": "Çarpan +1"
+    "de": "Multiplikator +1"
   },
   "shopError": {
     "en": "Error",
-    "zh": "错误",
     "es": "Error",
     "ru": "Ошибка",
     "fr": "Erreur",
-    "de": "Fehler",
-    "tr": "Hata"
+    "de": "Fehler"
   },
   "shopProductNotFound": {
     "en": "Product not found",
-    "zh": "未找到产品",
     "es": "Producto no encontrado",
     "ru": "Товар не найден",
     "fr": "Produit non trouvé",
-    "de": "Produkt nicht gefunden",
-    "tr": "Ürün bulunamadı"
+    "de": "Produkt nicht gefunden"
   },
   "shopPurchased": {
     "en": "Purchased",
-    "zh": "已购买",
     "es": "Comprado",
     "ru": "Куплен",
     "fr": "Acheté",
-    "de": "Gekauft",
-    "tr": "Satın alındı"
+    "de": "Gekauft"
   },
   "lineLimitReached": {
     "en": "You have reached the line limit",
-    "zh": "您已达到行数限制",
     "es": "Has alcanzado el límite de líneas",
     "ru": "Вы достигли лимита линий",
     "fr": "Vous avez atteint la limite de lignes",
-    "de": "Sie haben das Zeilenlimit erreicht",
-    "tr": "Satır sınırına ulaştınız"
+    "de": "Sie haben das Zeilenlimit erreicht"
   },
   "continue": {
     "en": "Continue",
-    "zh": "继续",
     "es": "Continuar",
     "ru": "Продолжить",
     "fr": "Continuer",
-    "de": "Fortsetzen",
-    "tr": "Devam et"
+    "de": "Fortsetzen"
   }
 }

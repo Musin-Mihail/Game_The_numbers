@@ -86,6 +86,6 @@ namespace View.UI.Builder
         public const string HeaderNumberDisplay = "HeaderNumberDisplay";
         public const string RuntimeGameplay = "RuntimeGameplay";
 
-        public static readonly string[] LanguageButtonNames = { "EN", "ZH", "ES", "FR", "RU", "DE", "TR" };
+        public static readonly string[] LanguageButtonNames = { "EN", "ES", "FR", "RU", "DE" };
     }
 }

@@ -208,16 +208,30 @@ namespace View.UI.Builder
         private static void BuildMenu(Transform canvas)
         {
             var menu = UiFactory.CreateStretchOverlay(UiIds.Menu, canvas, UiTheme.MenuOverlay);
-            var window = CreateCenteredWindow(UiIds.WindowMenu, menu.transform, UiTheme.MenuButtonWidth, 40f);
-            UiFactory.CreateLabeledButton(UiIds.Continue, window.transform, "play",
-                new Vector2(UiTheme.MenuButtonWidth, UiTheme.MenuButtonHeight));
-            var options = UiFactory.CreateLabeledButton(UiIds.OptionsButton, window.transform, "options",
-                new Vector2(UiTheme.MenuButtonWidth, UiTheme.MenuButtonHeight));
+
+            var play = UiFactory.Create(UiIds.Continue, menu.transform);
+            UiFactory.SetRect(UiFactory.Rect(play), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(UiTheme.PlayButtonSize, UiTheme.PlayButtonSize));
+            var playImage = UiFactory.AddImage(play, UiTheme.PlayButton, UiTheme.PlaySprite);
+            playImage.preserveAspect = true;
+            UiFactory.AddButton(play);
+
+            var options = UiFactory.Create(UiIds.OptionsButton, menu.transform);
+            UiFactory.SetRect(UiFactory.Rect(options), new Vector2(0f, 1f), new Vector2(0f, 1f),
+                new Vector2(0f, 1f), new Vector2(24f, -24f),
+                new Vector2(UiTheme.MenuCornerButtonSize, UiTheme.MenuCornerButtonSize));
+            UiFactory.AddImage(options, UiTheme.ButtonSecondary);
+            UiFactory.AddButton(options);
+            var gear = UiFactory.Create("Icon", options.transform);
+            UiFactory.Stretch(UiFactory.Rect(gear), new Vector2(18f, 18f), new Vector2(-18f, -18f));
+            var gearImage = UiFactory.AddImage(gear, UiTheme.Icon, UiTheme.GearSprite);
+            gearImage.preserveAspect = true;
             options.AddComponent<ButtonAnimator>().ConfigureForUpdateNotification();
 
             var lang = UiFactory.Create(UiIds.OpenLanguage, menu.transform);
             UiFactory.SetRect(UiFactory.Rect(lang), new Vector2(1f, 1f), new Vector2(1f, 1f),
-                new Vector2(1f, 1f), new Vector2(-24f, -24f), new Vector2(120f, 80f));
+                new Vector2(1f, 1f), new Vector2(-24f, -24f),
+                new Vector2(UiTheme.MenuCornerButtonSize, UiTheme.MenuCornerButtonSize));
             UiFactory.AddImage(lang, UiTheme.ButtonSecondary);
             UiFactory.AddButton(lang);
             var flag = UiFactory.Create(UiIds.CurrentLanguageImage, lang.transform);
@@ -391,7 +405,7 @@ namespace View.UI.Builder
 
             var panel = UiFactory.Create(UiIds.Panel, panelRoot.transform);
             UiFactory.SetRect(UiFactory.Rect(panel), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(520f, 900f));
+                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(520f, 640f));
             UiFactory.AddImage(panel, UiTheme.Panel);
 
             var close = UiFactory.Create(UiIds.Close, panel.transform);
@@ -403,7 +417,7 @@ namespace View.UI.Builder
 
             var list = UiFactory.Create(UiIds.Languages, panel.transform);
             UiFactory.SetRect(UiFactory.Rect(list), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                new Vector2(0.5f, 0.5f), new Vector2(0f, -20f), new Vector2(420f, 760f));
+                new Vector2(0.5f, 0.5f), new Vector2(0f, -20f), new Vector2(420f, 500f));
             var layout = list.AddComponent<VerticalLayoutGroup>();
             layout.childAlignment = TextAnchor.UpperCenter;
             layout.spacing = 12f;
@@ -417,9 +431,8 @@ namespace View.UI.Builder
                     new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(400f, 80f));
                 UiFactory.AddImage(btn, Color.white);
                 UiFactory.AddButton(btn);
-                var label = UiFactory.CreateText("Text (TMP)", btn.transform, UiTheme.GetNativeLanguageName(code),
+                UiFactory.CreateText("Text (TMP)", btn.transform, UiTheme.GetNativeLanguageName(code),
                     40f, UiTheme.TextDark, TextAlignmentOptions.Center, true);
-                if (code == "ZH") label.font = UiTheme.CjkFont;
             }
 
             panelRoot.SetActive(false);
