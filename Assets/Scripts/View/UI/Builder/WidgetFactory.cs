@@ -18,13 +18,19 @@ namespace View.UI.Builder
             UiFactory.SetRect(rt, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f),
                 Vector2.zero, new Vector2(GameConstants.CellSize, GameConstants.CellSize));
 
-            UiFactory.AddImage(go, UiTheme.CellOriginal, UiTheme.CellSprite);
+            var cellImage = UiFactory.AddImage(go, UiTheme.CellOriginal, UiTheme.CellSprite);
+            cellImage.preserveAspect = true;
             go.AddComponent<CellAnimator>();
             var button = UiFactory.AddButton(go);
 
             var numberGo = UiFactory.Create(UiIds.CellNumber, go.transform);
             UiFactory.Stretch(UiFactory.Rect(numberGo), new Vector2(4f, 4f), new Vector2(-4f, -4f));
-            UiFactory.AddText(numberGo, "0", 70f, Color.black, TextAlignmentOptions.Center, false, true);
+            var number = UiFactory.AddText(numberGo, "0", UiTheme.CellNumberFontSize, Color.black,
+                TextAlignmentOptions.Center);
+            number.enableAutoSizing = false;
+            number.textWrappingMode = TextWrappingModes.NoWrap;
+            number.overflowMode = TextOverflowModes.Overflow;
+            number.margin = UiTheme.CellNumberMargin;
 
             var cell = go.AddComponent<Cell>();
             button.onClick.AddListener(cell.HandleClick);

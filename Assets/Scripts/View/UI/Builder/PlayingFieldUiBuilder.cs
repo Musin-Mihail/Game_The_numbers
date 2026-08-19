@@ -84,7 +84,8 @@ namespace View.UI.Builder
 
             var background = UiFactory.Create(UiIds.Background, hud.transform);
             UiFactory.Stretch(UiFactory.Rect(background));
-            UiFactory.AddImage(background, UiTheme.CanvasBackground, raycast: false);
+            var bgImage = UiFactory.AddImage(background, Color.white, UiTheme.BackgroundSprite, raycast: false);
+            bgImage.preserveAspect = false;
 
             var header = UiFactory.Create(UiIds.Header, hud.transform);
             UiFactory.SetRect(UiFactory.Rect(header), new Vector2(0f, 1f), new Vector2(1f, 1f),
@@ -226,7 +227,6 @@ namespace View.UI.Builder
             UiFactory.Stretch(UiFactory.Rect(gear), new Vector2(18f, 18f), new Vector2(-18f, -18f));
             var gearImage = UiFactory.AddImage(gear, UiTheme.Icon, UiTheme.GearSprite);
             gearImage.preserveAspect = true;
-            options.AddComponent<ButtonAnimator>().ConfigureForUpdateNotification();
 
             var lang = UiFactory.Create(UiIds.OpenLanguage, menu.transform);
             UiFactory.SetRect(UiFactory.Rect(lang), new Vector2(1f, 1f), new Vector2(1f, 1f),

@@ -74,11 +74,17 @@ namespace Core
         }
 
         /// <summary>
-        /// После обучения запускает обычную игру на 5 линий.
+        /// После обучения оставляет учебное поле и дописывает стартовые линии снизу.
         /// </summary>
         private void HandleTutorialCompleted()
         {
-            StartNewGame(true);
+            var start = _gridModel.Cells.Count;
+            for (var i = 0; i < GameConstants.InitialLinesOnStart; i++)
+            {
+                _gridModel.CreateFriendlyLine(start + i);
+            }
+
+            _gameManager?.RequestSave();
         }
 
         /// <summary>

@@ -25,12 +25,15 @@
 
 | Путь для `Resources.Load`                                                                      | Файл                                       |
 | ---------------------------------------------------------------------------------------------- | ------------------------------------------ |
-| `Sprites/Cell`                                                                                 | `Resources/Sprites/Cell.png`               |
-| `Sprites/menu`, `add`, `undo`, `hint`, `Rating`, `player`, `Close`, `CheckBox`, `gear`, `play` | `Resources/Sprites/*.png`                  |
+| `Sprites/menu`, `add`, `undo`, `hint`, `Rating`, `player`, `Close`, `CheckBox`, `gear`, `play` | `Resources/Sprites/*.png` |
+| `Sprites/Background`                                                           | `Resources/Sprites/Background.png`         |
+| `Sprites/Cell`                                                                 | `Resources/Sprites/Cell.png`               |
 | `Sprites/Lang/EN` … `DE`                                                                       | `Resources/Sprites/Lang/EN.png`            |
 | `Fonts/light_pixel-7_main`                                                                     | `Resources/Fonts/light_pixel-7_main.asset` |
 
 `Image` без спрайта не рисуется — если файл не найден, `UiTheme` подставляет белый квад. Не вызывать `Resources.GetBuiltinResource`.
+
+Графика: Flux.1 Dev через `python Tools/comfyui/generate.py` (Comfy Desktop должен быть запущен). Промпты и палитра — `Tools/comfyui/assets.json` и `Tools/graphics/style.py`. `.meta` не трогает. Запасной плоский генератор — `python Tools/graphics/generate_sprites.py`. См. [COMFYUI_PROMPTS.md](COMFYUI_PROMPTS.md).
 
 Не редактировать `.unity` и `.prefab` для UI. Префабы в `Resources/Prefabs` больше не используются рантаймом.
 

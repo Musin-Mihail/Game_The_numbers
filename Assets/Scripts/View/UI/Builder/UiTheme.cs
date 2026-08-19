@@ -26,6 +26,11 @@ namespace View.UI.Builder
         public const float FloatingScoreLifeTime = 1f;
         public const float FloatingScoreFadeOut = 0.5f;
         public const float LeaderboardFontMultiplier = 1.2f;
+        public const float CellNumberFontSize = 64f;
+        /// <summary>
+        /// TMP margin (left, right, top, bottom). Light Pixel-7 сидит выше визуального центра.
+        /// </summary>
+        public static readonly Vector4 CellNumberMargin = new(2f, 2f, 10f, -2f);
 
         public static readonly Color CanvasBackground = Color.white;
         public static readonly Color OverlaySolid = Color.white;
@@ -113,6 +118,7 @@ namespace View.UI.Builder
         public static Sprite CheckBoxSprite => LoadSprite("Sprites/CheckBox");
         public static Sprite GearSprite => LoadSprite("Sprites/gear");
         public static Sprite PlaySprite => LoadSprite("Sprites/play");
+        public static Sprite BackgroundSprite => LoadSprite("Sprites/Background");
 
         public static Sprite GetLanguageSprite(string languageCode)
         {
