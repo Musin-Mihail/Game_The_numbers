@@ -33,7 +33,7 @@
 
 `Image` без спрайта не рисуется — если файл не найден, `UiTheme` подставляет белый квад. Не вызывать `Resources.GetBuiltinResource`.
 
-Графика: Flux.1 Dev через `python Tools/comfyui/generate.py` (Comfy Desktop должен быть запущен). Промпты и палитра — `Tools/comfyui/assets.json` и `Tools/graphics/style.py`. `.meta` не трогает. Запасной плоский генератор — `python Tools/graphics/generate_sprites.py`. См. [COMFYUI_PROMPTS.md](COMFYUI_PROMPTS.md).
+PNG класть вручную в `Assets/Resources/Sprites/` (и `Lang/` для флагов). `.meta` не перезаписывать без нужды. HUD-иконки — белый глиф на прозрачном фоне: в коде тинт `UiTheme.Icon`.
 
 Не редактировать `.unity` и `.prefab` для UI. Префабы в `Resources/Prefabs` больше не используются рантаймом.
 
